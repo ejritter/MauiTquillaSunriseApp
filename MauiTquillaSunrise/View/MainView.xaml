@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:view="clr-namespace:MauiTquillaSunrise.View"
+             xmlns:viewmodel="clr-namespace:MauiTquillaSunrise.ViewModel"
+             xmlns:model="clr-namespace:MauiTquillaSunrise.Model"
+             x:Class="MauiTquillaSunrise.View.MainView"
+             x:DataType="viewmodel:MainViewModel"
+             Loaded="ContentPage_Loaded"
+             Title="{Binding Title}">
+    <VerticalStackLayout Margin="10" Spacing="100">
+        <HorizontalStackLayout>
+            <Grid VerticalOptions="Start"
+                  ColumnDefinitions="200,30,200,30,30,200,30,240"
+                  ColumnSpacing="5">
+                <Entry Grid.Column="0"
+                       Text="{Binding UserNameText}"
+                       Placeholder="User Name"
+                       ReturnCommand="{Binding AddUserNameCommand}"
+                       ReturnCommandParameter="{Binding UserNameText}" />
+                <ImageButton Grid.Column="1"
+                             Source="{Binding AddButton}"
+                             WidthRequest="30"
+                             HeightRequest="30"
+                             Command="{Binding AddUserNameCommand}"
+                             CommandParameter="{Binding UserNameText}" />
+                <Entry Grid.Column="2"
+                       Text="{Binding PasswordText}"
+                       Placeholder="Password"
+                       IsVisible="{Binding IsShowing}"
+                       ReturnCommand="{Binding AddPasswordCommand}"
+                       ReturnCommandParameter="{Binding PasswordText}" />
+                <ImageButton Grid.Column="3"
+                             Source="{Binding AddButton}"
+                             Command="{Binding AddPasswordCommand}"
+                             CommandParameter="{Binding PasswordText}" />
+                <ImageButton Grid.Column="4"
+                             Source="{Binding RevealPasswordButtonIcon}"
+                             Command="{Binding RevealPasswordCommand}" />
+                <Entry Grid.Column="5"
+                       Text="{Binding ServerText}"
+                       Placeholder="Server.domain.com:port"
+                       ReturnCommand="{Binding AddServerCommand}"
+                       ReturnCommandParameter="{Binding ServerText}"
+                       IsEnabled="{Binding IsEnabled}" />
+                <ImageButton Grid.Column="6"
+                             HorizontalOptions="Start"
+                             Source="{Binding AddButton}"
+                             Command="{Binding AddServerCommand}"
+                             CommandParameter="{Binding ServerText}"
+                             IsEnabled="{Binding IsEnabled}" />
+                <Button Grid.Column="7"
+                        Text="Update All Server Credentials"
+                        IsEnabled="{Binding IsEnabled}"
+                        Command="{Binding UpdateCredentialsCommand}" />
+            </Grid>
+        </HorizontalStackLayout>
+        <HorizontalStackLayout>
+            <Grid HorizontalOptions="Start"
+                  ColumnDefinitions="330,30"
+                  RowDefinitions="500"
+                  ColumnSpacing="10">
+                <CollectionView x:Name="ServerCollection"
+                                Grid.Column="0"
+                                Grid.Row="0"
+                                ItemsSource="{Binding Servers}"
+                                SelectionMode="Multiple"
+                                SelectionChangedCommand="{Binding ServerSelectedCommand}"
+                                SelectionChangedCommandParameter="{x:Reference ServerCollection}"
+                                VerticalScrollBarVisibility="Always">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="model:ServerModel">
+                            <Label Text="{Binding ServerName}" />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <ImageButton Grid.Column="1"
+                             HorizontalOptions="Center"
+                             Source="{Binding RemoveServerIcon}"
+                             Command="{Binding RemoveServerCommand}"
+                             IsVisible="{Binding IsServerSelected}" />
+            </Grid>
+        </HorizontalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>
