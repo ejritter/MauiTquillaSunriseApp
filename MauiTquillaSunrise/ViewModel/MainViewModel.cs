@@ -13,62 +13,59 @@ public partial class MainViewModel : ObservableObject
     private static string minusIcon = "ic_fluent_subtract_24_regular.png";
 
     private Page _currentPage;
-    private List<ServerModel> _serversSelected;
+    private List<ServerModel> _serversSelected = new();
 
     [ObservableProperty]
     string title = "Maui T-Quilla Sunrise";
 
     [ObservableProperty]
-    string removeServerIcon;
+    string removeServerIcon = minusIcon;
 
     [ObservableProperty]
-    string revealPasswordButtonText;
+    string revealPasswordButtonText = show;
 
     [ObservableProperty]
-    string revealPasswordButtonIcon;
+    string revealPasswordButtonIcon = eyeOffIcon;
 
     [ObservableProperty]
-    ObservableCollection<ServerModel> servers;
+    string revealUsernameButtonText = show;
 
     [ObservableProperty]
-    UserModel user;
+    string revealUsernameButtonIcon = eyeOffIcon;
 
     [ObservableProperty]
-    string userNameText;
+    ObservableCollection<ServerModel> servers = new();
 
     [ObservableProperty]
-    string passwordText;
+    UserModel user = new();
 
     [ObservableProperty]
-    string serverText;
+    string userNameText = string.Empty;
+
+    [ObservableProperty]
+    string passwordText = string.Empty;
+
+    [ObservableProperty]
+    string serverText = string.Empty;
 
     [ObservableProperty]
     bool isEnabled;
 
     [ObservableProperty]
-    bool isShowing;
+    bool isPasswordShowing = false;
+    
+    [ObservableProperty]
+    bool isUsernameShowing = false;
 
     [ObservableProperty]
-    string addButton;
+    string addButton = addIcon;
 
     [ObservableProperty]
-    bool isServerSelected;
+    bool isServerSelected = false;
 
     public MainViewModel()
     {
-        Servers = new();
-        User = new();
-        UserNameText = string.Empty;
-        PasswordText = string.Empty;
-        ServerText = string.Empty;
         IsEnabled = Utilities.IsUserInitialized(User);
-        IsShowing = true;
-        RevealPasswordButtonText = show;
-        RevealPasswordButtonIcon = eyeOffIcon;
-        RemoveServerIcon = minusIcon;
-        IsServerSelected = false;
-        _serversSelected = new();
-        AddButton = addIcon;
         LoadServers();
     }
 
@@ -114,30 +111,41 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     public void RevealPassword()
     {
-        IsShowing = !IsShowing;
+        IsPasswordShowing = !IsPasswordShowing;
         RevealPasswordButtonIcon = RevealPasswordButtonIcon == eyeOffIcon ? eyeIcon : eyeOffIcon;
     }
 
     [RelayCommand]
-    public void UpdateCredentials(string? serverText)
+    public async void UpdateCredentials(string? serverText)
     {
         string message = string.Empty;
+        string title = "Updating Credentials";
+
         if (string.IsNullOrEmpty(serverText))
         {
-            foreach (ServerModel server in Servers)
+            var confirm = await GetUserConfirmationPopup("Warning!", "You are about to update all servers in your vault to the current set username and password.");
+            if (confirm)
             {
-                string addCmdKey = Utilities.FormatAddCmdKey(server.ServerName, User.UserName, User.Password);
-                message = "All server credentials updated to current set username and password.";
-                CmdCommand(addCmdKey);
+                foreach (ServerModel server in Servers)
+                {
+                    string addCmdKey = Utilities.FormatAddCmdKey(server.ServerName, User.UserName, User.Password);
+                    message = "All server credentials updated to current set username and password.";
+                    CmdCommand(addCmdKey);
+                } 
+            }
+            else
+            {
+                message = "Update canceled";
             }
         }
         else
         {
             string addCmdKey = Utilities.FormatAddCmdKey(serverText, User.UserName, User.Password);
             CmdCommand(addCmdKey);
+            title = "Added Server";
             message = $"{serverText} has been added.";
         }
-        DisplayPopup("UpdateCredentials", message);
+        DisplayPopup(title, message);
     }
 
     private void DisplayPopup(string title, string message)
@@ -146,6 +154,12 @@ public partial class MainViewModel : ObservableObject
         {
             _currentPage.DisplayAlert(title, message, "OK");
         }
+    }
+
+    private async Task<bool> GetUserConfirmationPopup(string title, string message)
+    {
+        bool response = await _currentPage.DisplayAlert(title, message, "OK","CANCEL");
+        return response;
     }
 
     private static string CmdCommand(string command)
@@ -179,6 +193,13 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+
+    [RelayCommand]
+    public void RevealUsername()
+    {
+        IsUsernameShowing = !IsUsernameShowing;
+        RevealUsernameButtonIcon = RevealUsernameButtonIcon == eyeOffIcon ? eyeIcon : eyeOffIcon;
+    }
     [RelayCommand]
     public void AddUserName(string userName)
     {

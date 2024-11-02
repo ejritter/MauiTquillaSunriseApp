@@ -4,21 +4,39 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
+    <!-- Light Theme -->
+    <Color x:Key="LightEntryBackground">#FFF5EE</Color>
+    <Color x:Key="LightEntryText">#333333</Color>
+    <Color x:Key="LightImageButtonBackground">#FFF5EE</Color>
+    <Color x:Key="LightImageButtonIcon">#FF4500</Color>
+    <Color x:Key="LightLabelText">#333333</Color>
+    <Color x:Key="LightAppShellBackground">#FFF5EE</Color>
+    <Color x:Key="LightAppShellText">#333333</Color>
 
-    <Color x:Key="Primary">#512BD4</Color>
-    <Color x:Key="PrimaryDark">#ac99ea</Color>
-    <Color x:Key="PrimaryDarkText">#242424</Color>
-    <Color x:Key="Secondary">#DFD8F7</Color>
+    <!-- Dark Theme -->
+    <Color x:Key="DarkEntryBackground">#1E1E1E</Color>
+    <Color x:Key="DarkEntryText">#FFFFFF</Color>
+    <Color x:Key="DarkImageButtonBackground">#1E1E1E</Color>
+    <Color x:Key="DarkImageButtonIcon">#FF4500</Color>
+    <Color x:Key="DarkLabelText">#FFFFFF</Color>
+    <Color x:Key="DarkAppShellBackground">#1E1E1E</Color>
+    <Color x:Key="DarkAppShellText">#FFFFFF</Color>
+
+    <!-- Existing Colors -->
+    <Color x:Key="Primary">#FF4500</Color>
+    <Color x:Key="PrimaryDark">#FF4500</Color>
+    <Color x:Key="PrimaryDarkText">#4682B4</Color>
+    <Color x:Key="Secondary">#FFD700</Color>
     <Color x:Key="SecondaryDarkText">#9880e5</Color>
-    <Color x:Key="Tertiary">#2B0B98</Color>
+    <Color x:Key="Tertiary">#4682B4</Color>
 
     <Color x:Key="White">White</Color>
-    <Color x:Key="Black">Black</Color>
+    <Color x:Key="DarkOrange">Black</Color>
     <Color x:Key="Magenta">#D600AA</Color>
     <Color x:Key="MidnightBlue">#190649</Color>
     <Color x:Key="OffBlack">#1f1f1f</Color>
-
+    <Color x:Key="Black">Black</Color>
+    
     <Color x:Key="Gray100">#E1E1E1</Color>
     <Color x:Key="Gray200">#C8C8C8</Color>
     <Color x:Key="Gray300">#ACACAC</Color>
