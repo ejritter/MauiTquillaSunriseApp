@@ -16,7 +16,7 @@ public partial class MainViewModel : ObservableObject
     private List<ServerModel> _serversSelected = new();
 
     [ObservableProperty]
-    string title = "Maui T-Quilla Sunrise";
+    string title = string.Empty;
 
     [ObservableProperty]
     string removeServerIcon = minusIcon;
@@ -66,6 +66,7 @@ public partial class MainViewModel : ObservableObject
     public MainViewModel()
     {
         IsEnabled = Utilities.IsUserInitialized(User);
+        //LoadDummyServers();
         LoadServers();
     }
 
@@ -75,18 +76,31 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public void RemoveServer()
+    public async void RemoveServer()
     {
         StringBuilder message = new();
-        message.AppendLine("Servers removed:");
+        message.AppendLine("Remove the following servers:");
+        string title = "Remove Servers?";
+
         foreach (ServerModel server in _serversSelected.ToList())
         {
             message.AppendLine(server.ServerName);
-            Servers.Remove(server);
-            string removeCmdKey = Utilities.FormatDeleteCmdKey(server.ServerName);
-            CmdCommand(removeCmdKey);
         }
-        DisplayPopup("RemoveServer()", message.ToString());
+
+        var response = await GetUserConfirmationPopup(title, message.ToString());
+        if (response)
+        {
+            message.Clear();
+            message.AppendLine("Servers Removed:");
+            foreach (ServerModel server in _serversSelected.ToList())
+            {
+                message.AppendLine(server.ServerName);
+                Servers.Remove(server);
+                string removeCmdKey = Utilities.FormatDeleteCmdKey(server.ServerName);
+                CmdCommand(removeCmdKey);
+            }
+            DisplayAlert(title, message.ToString()); 
+        }
     }
 
     [RelayCommand]
@@ -145,10 +159,10 @@ public partial class MainViewModel : ObservableObject
             title = "Added Server";
             message = $"{serverText} has been added.";
         }
-        DisplayPopup(title, message);
+        DisplayAlert(title, message);
     }
 
-    private void DisplayPopup(string title, string message)
+    private void DisplayAlert(string title, string message)
     {
         if (Shell.Current?.CurrentPage != null)
         {
@@ -178,6 +192,15 @@ public partial class MainViewModel : ObservableObject
         return textBlob;
     }
 
+    private void LoadDummyServers()
+    {
+        var commands = Utilities.GenerateBogusServers(500);
+        foreach (string commandLine in commands.Split("\n"))
+        {
+            CmdCommand(commandLine);
+        }
+    }
+
     private void LoadServers()
     {
         var results = CmdCommand(cmdKeyList);
@@ -205,7 +228,7 @@ public partial class MainViewModel : ObservableObject
     {
         if (string.IsNullOrEmpty(userName))
         {
-            DisplayPopup("AddUserName()", "Please provide username.");
+            DisplayAlert("AddUserName()", "Please provide username.");
             UserNameText = User.UserName;
             return;
         }
@@ -221,7 +244,7 @@ public partial class MainViewModel : ObservableObject
     {
         if (string.IsNullOrEmpty(password))
         {
-            DisplayPopup("AddPassword()", "Please provide password.");
+            DisplayAlert("AddPassword()", "Please provide password.");
             PasswordText = User.Password;
             return;
         }

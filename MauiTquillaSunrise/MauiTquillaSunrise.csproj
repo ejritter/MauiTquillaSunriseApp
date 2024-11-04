@@ -21,7 +21,7 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Display name -->
-		<ApplicationTitle>MauiTquillaSunrise</ApplicationTitle>
+		<ApplicationTitle>Maui T-Quilla Sunrise</ApplicationTitle>
 
 		<!-- App Identifier -->
 		<ApplicationId>com.companyname.mauitquillasunrise</ApplicationId>

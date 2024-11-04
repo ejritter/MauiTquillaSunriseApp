@@ -10,6 +10,16 @@ public static class Utilities
         return output = $@"cmdkey /add:{server} /user:{username} /pass:{password}";
     }
 
+
+    public static string GenerateBogusServers(int servers)
+    {
+        StringBuilder output = new();
+        for (int i = 0; i < servers; i++)
+        {
+            output.AppendLine($@"cmdkey /add:server{i}.domainname.com:1433 /user:dummy /pass:fake123");
+        }
+        return output.ToString();
+    }
     public static string FormatDeleteCmdKey(string server)
     {
         string output;

@@ -4,19 +4,23 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
+
     <Style TargetType="Entry">
-        <Setter Property="BackgroundColor" Value="{DynamicResource EntryBackground}" />
-        <Setter Property="TextColor" Value="{DynamicResource EntryText}" />
+        <Setter Property="BackgroundColor" Value="#8B0000" />
+        <Setter Property="TextColor" Value="#e49b1c" />
+        <Setter Property="PlaceholderColor" Value="#e44c1c" />
     </Style>
     <Style TargetType="ImageButton">
-        <Setter Property="BackgroundColor" Value="{DynamicResource ImageButtonBackground}" />
+        <Setter Property="BackgroundColor" Value="#8B0000" />
         <Setter Property="Source" Value="{DynamicResource ImageButtonIcon}" />
     </Style>
     <Style TargetType="Label">
-        <Setter Property="TextColor" Value="{DynamicResource LabelText}" />
+        <Setter Property="TextColor" Value="#e49b1c" />
     </Style>
-    <Style TargetType="Shell">
-        <Setter Property="BackgroundColor" Value="{DynamicResource AppShellBackground}" />
-        <Setter Property="ForegroundColor" Value="{DynamicResource AppShellText}" />
+    <Style TargetType="CollectionView">
+        <Setter Property="BackgroundColor" Value="#FF5733" />
+    </Style>
+    <Style TargetType="Button">
+        <Setter Property="BackgroundColor" Value="#8B0000" />
     </Style>
 </ResourceDictionary>
