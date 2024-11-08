@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mct:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mct="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
+             xmlns:view="clr-namespace:MauiTquillaSunrise.View"
+             xmlns:viewmodel="clr-namespace:MauiTquillaSunrise.ViewModel"
+             x:Class="MauiTquillaSunrise.View.GeneralAlertPopupView"
+             x:DataType="viewmodel:GeneralAlertPopupViewModel"
+             Color="{StaticResource TquillaPrimary}"
+             >
+    <VerticalStackLayout>
+        <Label 
+            Text="{Binding Message}"
+            VerticalOptions="CenterAndExpand" 
+            HorizontalOptions="CenterAndExpand" 
+            />
+        <Button Text="Ok"
+                Clicked="OkayClicked" />
+    </VerticalStackLayout>
+</mct:Popup>

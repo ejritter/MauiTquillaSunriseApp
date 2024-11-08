@@ -2,11 +2,13 @@
 <?xaml-comp compile="true" ?>
 <ResourceDictionary 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
     
     <Color x:Key="TquillaPrimary">#8B0000</Color>
     <Color x:Key="TquillaText">#e49b1c</Color>
     <Color x:Key="TquillaPlaceHolder">#e44c1c</Color>
+    <Color x:Key="TquillaIceImageFiller">#81D4FA</Color>
 
     <Style TargetType="Entry">
         <Setter Property="BackgroundColor" Value="{StaticResource TquillaPrimary}" />
@@ -22,14 +24,18 @@
     </Style>
     <Style TargetType="Label">
         <Setter Property="TextColor" Value="{StaticResource TquillaText}" />
+        <Setter Property="WidthRequest" Value="200" />
     </Style>
     <Style TargetType="CollectionView">
         <Setter Property="BackgroundColor" Value="{StaticResource TquillaPlaceHolder}" />
     </Style>
     <Style TargetType="Button">
         <Setter Property="BackgroundColor" Value="{StaticResource TquillaPrimary}" />
+        <Setter Property="TextColor" Value="{StaticResource TquillaIceImageFiller}" />
+        <Setter Property="WidthRequest" Value="200" />
+        <Setter Property="Padding" Value="5" />
     </Style>
-
+    
     <Style TargetType="Picker">
         <Setter Property="TextColor" Value="{StaticResource TquillaText}" />
         <Setter Property="TitleColor" Value="{StaticResource TquillaText}" />

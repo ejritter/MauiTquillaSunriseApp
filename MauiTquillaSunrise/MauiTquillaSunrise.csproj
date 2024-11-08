@@ -68,7 +68,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="View\GetConfirmationPopup.xaml">
+	  <Compile Update="View\GetConfirmationPopupView.xaml.cs">
+	    <DependentUpon>GetConfirmationPopupView.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="View\GeneralAlertPopupView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\GetConfirmationPopupView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\MainView.xaml">

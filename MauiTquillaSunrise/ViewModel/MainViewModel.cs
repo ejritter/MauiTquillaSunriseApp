@@ -230,10 +230,18 @@ public partial class MainViewModel : ObservableObject
 
     private async Task<bool> GetUserConfirmationPopup(string title, string message)
     {
-        var confirmationPage = new GetConfirmationPopup() { Title = title, Message = message };
-
+        //var confirmationPage = new GetConfirmationPopup() { Title = title, Message = message };
+        var confirmationPage = new GetConfirmationPopup(new GetConfirmationPopupViewModel(title, message));
         var response = await Shell.Current.CurrentPage.ShowPopupAsync(confirmationPage);
-        return (bool)response;
+
+        if (response is bool foundResponse)
+        {
+            return foundResponse;
+        }
+        else
+        {
+            return false;
+        }
         //return response;
     }
 
