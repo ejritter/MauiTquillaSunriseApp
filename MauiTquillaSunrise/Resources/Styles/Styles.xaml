@@ -3,24 +3,49 @@
 <ResourceDictionary 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
-
+    
+    <Color x:Key="TquillaPrimary">#8B0000</Color>
+    <Color x:Key="TquillaText">#e49b1c</Color>
+    <Color x:Key="TquillaPlaceHolder">#e44c1c</Color>
 
     <Style TargetType="Entry">
-        <Setter Property="BackgroundColor" Value="#8B0000" />
-        <Setter Property="TextColor" Value="#e49b1c" />
-        <Setter Property="PlaceholderColor" Value="#e44c1c" />
+        <Setter Property="BackgroundColor" Value="{StaticResource TquillaPrimary}" />
+        <Setter Property="TextColor" Value="{StaticResource TquillaText}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource TquillaPlaceHolder}" />
     </Style>
     <Style TargetType="ImageButton">
-        <Setter Property="BackgroundColor" Value="#8B0000" />
+        <Setter Property="BackgroundColor" Value="{StaticResource TquillaPrimary}" />
         <Setter Property="Source" Value="{DynamicResource ImageButtonIcon}" />
     </Style>
+    <Style TargetType="Image" >
+        <Setter Property="BackgroundColor" Value="{StaticResource TquillaPlaceHolder}" />
+    </Style>
     <Style TargetType="Label">
-        <Setter Property="TextColor" Value="#e49b1c" />
+        <Setter Property="TextColor" Value="{StaticResource TquillaText}" />
     </Style>
     <Style TargetType="CollectionView">
-        <Setter Property="BackgroundColor" Value="#FF5733" />
+        <Setter Property="BackgroundColor" Value="{StaticResource TquillaPlaceHolder}" />
     </Style>
     <Style TargetType="Button">
-        <Setter Property="BackgroundColor" Value="#8B0000" />
+        <Setter Property="BackgroundColor" Value="{StaticResource TquillaPrimary}" />
+    </Style>
+
+    <Style TargetType="Picker">
+        <Setter Property="TextColor" Value="{StaticResource TquillaText}" />
+        <Setter Property="TitleColor" Value="{StaticResource TquillaText}" />
+        <Setter Property="BackgroundColor" Value="{StaticResource TquillaPrimary}" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor" Value="{StaticResource TquillaPlaceHolder}"/>
+                            <Setter Property="TitleColor" Value="{StaticResource TquillaPlaceHolder}"/>
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
 </ResourceDictionary>

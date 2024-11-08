@@ -11,9 +11,23 @@ public partial class MainViewModel : ObservableObject
     private static string eyeOffIcon = "ic_fluent_eye_off_24_regular.png";
     private static string addIcon = "ic_fluent_add_24_filled.png";
     private static string minusIcon = "ic_fluent_subtract_24_regular.png";
+    private static string drinkImage = "drinkicon.png";
+    private static string emptyDrinkImage = "emptydrinkicon.png";
 
     private Page _currentPage;
     private List<ServerModel> _serversSelected = new();
+    private List<ServerModel> _allServers = new();
+
+    [ObservableProperty]
+    DomainModel selectedDomain;
+    
+    private Dictionary<DomainModel, List<ServerModel>> domainDictionary = new();
+
+    [ObservableProperty]
+    string emptyDrinkIcon = emptyDrinkImage;
+
+    [ObservableProperty]
+    string drinkIcon = drinkImage;
 
     [ObservableProperty]
     string title = string.Empty;
@@ -35,6 +49,9 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     ObservableCollection<ServerModel> servers = new();
+
+    [ObservableProperty]
+    ObservableCollection<DomainModel> domains = new();
 
     [ObservableProperty]
     UserModel user = new();
@@ -68,11 +85,48 @@ public partial class MainViewModel : ObservableObject
         IsEnabled = Utilities.IsUserInitialized(User);
         //LoadDummyServers();
         LoadServers();
+        LoadDomains();
+        SetPickerDefault();
     }
 
+    private void SetPickerDefault()
+    {
+        //should always have the ###-ALL-### DomainModel.
+        SelectedDomain = Domains[0];
+    }
+
+    private void LoadDomains()
+    {
+        //initialize dictionary with ALL
+        domainDictionary.Add(new DomainModel { DomainName = "###-ALL-###" }, _allServers.ToList());
+
+        foreach (ServerModel server in _allServers)
+        {
+            string[] serverArray = server.ServerName.Split('.');
+            //0 server
+            //1 domainName
+            //2 domain (com, org etc)
+            var found = domainDictionary.FirstOrDefault(domains => domains.Key.DomainName == serverArray[1])
+                                        .Key;
+
+            if (found == null)
+            {
+                var domainModel = new DomainModel{ DomainName = serverArray[1] };
+                var domainServerList = _allServers.Where(servers => servers.ServerName.Split('.')[1] == domainModel.DomainName).ToList();
+
+                domainDictionary.Add(domainModel, domainServerList);
+            }
+        }
+
+        foreach (var domainModel in domainDictionary)
+        {
+            Domains.Add(domainModel.Key);
+        }
+    }
     public void PageLoaded()
     {
         _currentPage = (Page)Application.Current.MainPage;
+        
     }
 
     [RelayCommand]
@@ -96,6 +150,8 @@ public partial class MainViewModel : ObservableObject
             {
                 message.AppendLine(server.ServerName);
                 Servers.Remove(server);
+                _allServers.Remove(server);
+                domainDictionary[SelectedDomain].Remove(server);
                 string removeCmdKey = Utilities.FormatDeleteCmdKey(server.ServerName);
                 CmdCommand(removeCmdKey);
             }
@@ -134,10 +190,12 @@ public partial class MainViewModel : ObservableObject
     {
         string message = string.Empty;
         string title = "Updating Credentials";
+        
 
         if (string.IsNullOrEmpty(serverText))
         {
-            var confirm = await GetUserConfirmationPopup("Warning!", "You are about to update all servers in your vault to the current set username and password.");
+            
+            var confirm = await GetUserConfirmationPopup("Warning!", $"You are about to update all servers in domain {SelectedDomain.DomainName} to the current set username and password.");
             if (confirm)
             {
                 foreach (ServerModel server in Servers)
@@ -172,8 +230,11 @@ public partial class MainViewModel : ObservableObject
 
     private async Task<bool> GetUserConfirmationPopup(string title, string message)
     {
-        bool response = await _currentPage.DisplayAlert(title, message, "OK","CANCEL");
-        return response;
+        var confirmationPage = new GetConfirmationPopup() { Title = title, Message = message };
+
+        var response = await Shell.Current.CurrentPage.ShowPopupAsync(confirmationPage);
+        return (bool)response;
+        //return response;
     }
 
     private static string CmdCommand(string command)
@@ -224,11 +285,11 @@ public partial class MainViewModel : ObservableObject
         RevealUsernameButtonIcon = RevealUsernameButtonIcon == eyeOffIcon ? eyeIcon : eyeOffIcon;
     }
     [RelayCommand]
-    public void AddUserName(string userName)
+    public void AddUsername(string userName)
     {
         if (string.IsNullOrEmpty(userName))
         {
-            DisplayAlert("AddUserName()", "Please provide username.");
+            DisplayAlert("Adding Username", "Please provide username.");
             UserNameText = User.UserName;
             return;
         }
@@ -244,7 +305,7 @@ public partial class MainViewModel : ObservableObject
     {
         if (string.IsNullOrEmpty(password))
         {
-            DisplayAlert("AddPassword()", "Please provide password.");
+            DisplayAlert("Adding Password", "Please provide password.");
             PasswordText = User.Password;
             return;
         }
@@ -264,24 +325,38 @@ public partial class MainViewModel : ObservableObject
         }
         else
         {
-            ServerModel newServer = new ServerModel()
+            var newServer = new ServerModel()
             {
                 ServerName = server
             };
 
-            ServerModel? found = Servers.FirstOrDefault(s => s.ServerName == newServer.ServerName);
+            ServerModel? found = _allServers.FirstOrDefault(s => s.ServerName == newServer.ServerName);
             if (found != null)
             {
-                Servers.Remove(found);
+                _allServers.Remove(found);
             }
-            Servers.Add(newServer);
-            Utilities.SortServerList(Servers);
+            _allServers.Add(newServer);
 
             if (Utilities.IsUserInitialized(User) == true)
             {
                 UpdateCredentials(ServerText);
             }
             ServerText = string.Empty;
+        }
+    }
+
+    public void PickerChanged_Event(object sender, EventArgs e)
+    {
+        if (sender is Picker picker && picker.SelectedIndex >= 0)
+        {
+            var selectedDomain = Domains[picker.SelectedIndex];
+            var domainServers = domainDictionary[selectedDomain];
+            Servers.Clear();
+            foreach (ServerModel server in domainServers)
+            {
+                Servers.Add(server);
+            }
+            Utilities.SortServerList(Servers);
         }
     }
 }

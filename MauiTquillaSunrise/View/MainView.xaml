@@ -8,13 +8,11 @@
              x:DataType="viewmodel:MainViewModel"
              Loaded="ContentPage_Loaded"
              Title="{Binding Title}"
-             BackgroundColor="#e41c51"
-             >
-    <VerticalStackLayout Margin="10" Spacing="50">
+             BackgroundColor="#e41c51">
+    <VerticalStackLayout Margin="10" Spacing="10">
         <HorizontalStackLayout Spacing="10"
                                HorizontalOptions="CenterAndExpand"
-                               VerticalOptions="CenterAndExpand"
-                               >
+                               VerticalOptions="CenterAndExpand">
             <!-- Username and Password Section -->
             <VerticalStackLayout Spacing="10">
                 <HorizontalStackLayout Spacing="10">
@@ -22,18 +20,17 @@
                            Placeholder="Username"
                            WidthRequest="200"
                            IsPassword="{Binding IsUsernameShowing}"
-                           ReturnCommand="{Binding AddUserNameCommand}"
-                           ReturnCommandParameter="{Binding UserNameText}"
-                           />
+                           ReturnCommand="{Binding AddUsernameCommand}"
+                           ReturnCommandParameter="{Binding UserNameText}" />
                     <ImageButton Source="{Binding AddButton}"
                                  WidthRequest="30"
                                  HeightRequest="30"
-                                 Command="{Binding AddUserNameCommand}"
+                                 Command="{Binding AddUsernameCommand}"
                                  CommandParameter="{Binding UserNameText}" />
                     <ImageButton Source="{Binding RevealUsernameButtonIcon}"
                                  WidthRequest="30"
                                  HeightRequest="30"
-                                 Command="{Binding RevealUsernameCommand}"/>
+                                 Command="{Binding RevealUsernameCommand}" />
                 </HorizontalStackLayout>
                 <HorizontalStackLayout Spacing="10">
                     <Entry Text="{Binding PasswordText}"
@@ -46,11 +43,11 @@
                                  WidthRequest="30"
                                  HeightRequest="30"
                                  Command="{Binding AddPasswordCommand}"
-                                 CommandParameter="{Binding PasswordText}"/>
+                                 CommandParameter="{Binding PasswordText}" />
                     <ImageButton Source="{Binding RevealPasswordButtonIcon}"
                                  WidthRequest="30"
                                  HeightRequest="30"
-                                 Command="{Binding RevealPasswordCommand}"/>
+                                 Command="{Binding RevealPasswordCommand}" />
                 </HorizontalStackLayout>
             </VerticalStackLayout>
 
@@ -68,24 +65,36 @@
                                  HeightRequest="30"
                                  Command="{Binding AddServerCommand}"
                                  CommandParameter="{Binding ServerText}"
-                                 IsEnabled="{Binding IsEnabled}"/>
+                                 IsEnabled="{Binding IsEnabled}" />
                 </HorizontalStackLayout>
                 <HorizontalStackLayout Spacing="10">
                     <Button Text="Update All Server Credentials"
                             WidthRequest="200"
+                            Padding="5"
                             IsEnabled="{Binding IsEnabled}"
-                            Command="{Binding UpdateCredentialsCommand}" 
+                            Command="{Binding UpdateCredentialsCommand}"
                             HorizontalOptions="Start"
                             VerticalOptions="Center" />
                 </HorizontalStackLayout>
+
             </VerticalStackLayout>
+        </HorizontalStackLayout>
+
+        <HorizontalStackLayout Spacing="10"
+                               HorizontalOptions="CenterAndExpand"
+                               VerticalOptions="CenterAndExpand">
+            <Picker Title="Select Domain"
+                            ItemsSource="{Binding Domains}"
+                            ItemDisplayBinding="{Binding DomainName}"
+                            SelectedItem="{Binding SelectedDomain}"
+                            SelectedIndexChanged="PickerChanged_Event"
+                            WidthRequest="500" />
         </HorizontalStackLayout>
 
         <!-- Server Collection and Remove Button -->
         <HorizontalStackLayout Spacing="10"
                                VerticalOptions="Center"
-                               HorizontalOptions="CenterAndExpand"
-                               >
+                               HorizontalOptions="CenterAndExpand">
             <CollectionView x:Name="ServerCollection"
                             EmptyView="Vault currently empty"
                             ItemsSource="{Binding Servers}"
@@ -94,11 +103,22 @@
                             SelectionChangedCommandParameter="{x:Reference ServerCollection}"
                             VerticalScrollBarVisibility="Always"
                             MaximumHeightRequest="550"
-                            MaximumWidthRequest="300"
-                            >
+                            MaximumWidthRequest="400">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:ServerModel">
-                        <Label Text="{Binding ServerName}" />
+                        <Grid ColumnDefinitions="*,*"
+                              ColumnSpacing="3"
+                              RowSpacing="5"
+                              Padding="5"
+                              Margin="5">
+                            <Image Grid.Column="0" 
+                                   MaximumHeightRequest="50"
+                                   MaximumWidthRequest="30"
+                                   Source="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:MainViewModel}}, Path=DrinkIcon}" />
+                            <Label Grid.Column="1" 
+                                   Text="{Binding ServerName}"
+                                   FontSize="Caption"/>
+                        </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

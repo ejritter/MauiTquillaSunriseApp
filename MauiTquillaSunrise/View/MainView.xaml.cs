@@ -8,12 +8,18 @@ public partial class MainView : ContentPage
 	public MainView(MainViewModel vm)
 	{
 		InitializeComponent();
-		BindingContext = vm;
-		_currentVm = vm;
+        _currentVm = vm;
+        BindingContext = vm;
+
 	}
 
     private void ContentPage_Loaded(object sender, EventArgs e)
     {
 		_currentVm.PageLoaded();
+    }
+
+    private void PickerChanged_Event(object sender, EventArgs e)
+    {
+		_currentVm.PickerChanged_Event(sender, e);
     }
 }
