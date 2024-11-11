@@ -1,7 +1,4 @@
 # MauiTquillaSunriseApp# MauiTquillaSunriseApp
-## Contributing
-
-Contributions are welcome! Please fork the repository and submit a pull request with your changes. Ensure that your code follows the project's coding standards and includes appropriate tests.
 
 ## License
 
@@ -14,40 +11,30 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Contact
 
-For any questions or feedback, please contact [yourname@domain.com](mailto:yourname@domain.com).
-2. **Open the project in Visual Studio:**
+For any questions or feedback, please contact me at ejritter87@gmail.com.
+## Welcome!
 
-    Open `MauiTquillaSunriseApp.sln` in Visual Studio 2022.
+Sip into Simplicity with Maui T-Quilla Sunrise! We've mixed the perfect blend to kick those Windows Credential Manager blues to the curb—no salt or lime; just cmdKey required.
+Maui T-Quilla Sunrise is your refreshing solution to T-SQL credential chaos. Forget fumbling through the Windows Credential Manager; we've bottled convenience in a sleek Windows app that's as smooth as a tropical breeze on a Maui day.
 
-3. **Restore NuGet packages:**
-
-    Visual Studio should automatically restore the required NuGet packages. If not, you can restore them manually by right-clicking on the solution in the Solution Explorer and selecting `Restore NuGet Packages`.
-
-4. **Build and run the project:**
-
-    Select the target platform (Windows) and run the project using the Visual Studio debugger.
+Speaking of Maui, it is built using Maui .net 8 and specifically targets the Windows PC audience.
+This was built using Maui as a way to learn the framework. I had a lot of fun on this dream island.
 
 ## Usage
 
-### Main Features
+This app was built to manage T-sql credentials inside of your Windows Credential Manager.
+![image](https://github.com/user-attachments/assets/9fe296c3-d5c3-47fe-829b-0adb5585990f)
 
-- **Add Server**: Enter the server name and credentials to add a new server.
-- **Remove Server**: Select a server from the list and remove it.
-- **Toggle Password Visibility**: Click the eye icon to toggle the visibility of the password.
-- **Update Credentials**: Update the credentials for all servers or a specific server.
+It utilizes the cmdkey commands. Nothing special.
 
-### Commands
+When you enter a username and password, the Entry for your server.domain.com:port and Update All Server Credentials button becomes available.
+You may enter a new server at this time and it will be added to your Windows Credential Manager. 
+It will also add to the Domains Picker below "Select Domain".
 
-- **Add Server Credentials**:
-MauiTquillaSunriseApp is a .NET MAUI application designed to manage server credentials and provide a user-friendly interface for interacting with remote T-SQL servers. This application leverages the power of .NET 8 and the cross-platform capabilities of .NET MAUI, but it is specifically built to be used on Windows only. It is designed to work exclusively with the Windows Credential Vault Manager.
+Pick the domains you wish to manage, or choose ###-ALL-### to update all of your servers.
+A confirmation is given before it will update:
+.insert image here
 
-## Features
-
-- **Server Management**: Add, remove, and list server credentials.
-- **User Authentication**: Securely store and manage user credentials.
-- **Password Visibility Toggle**: Easily toggle the visibility of passwords.
-- **Command Execution**: Execute system commands to manage server credentials.
-- **Responsive UI**: A responsive and intuitive user interface built with .NET MAUI.
 
 ## Getting Started
 
@@ -57,6 +44,3 @@ MauiTquillaSunriseApp is a .NET MAUI application designed to manage server crede
 - [Visual Studio 2022](https://visualstudio.microsoft.com/vs/) with .NET MAUI workload installed
 - Windows 10 or later (x64)
 
-### Installation
-
-1. **Clone the repository:**
