@@ -6,13 +6,17 @@
              xmlns:viewmodel="clr-namespace:MauiTquillaSunrise.ViewModel"
              x:Class="MauiTquillaSunrise.View.GeneralAlertPopupView"
              x:DataType="viewmodel:GeneralAlertPopupViewModel"
-             Color="{StaticResource TquillaPrimary}"
+             Color="{StaticResource TquillaSecondary}"
              >
-    <VerticalStackLayout>
+    <VerticalStackLayout Spacing="10"
+                         Margin="10"
+                         HorizontalOptions="CenterAndExpand"
+                         VerticalOptions="CenterAndExpand">
         <Label 
             Text="{Binding Message}"
             VerticalOptions="CenterAndExpand" 
             HorizontalOptions="CenterAndExpand" 
+            FontSize="Large"
             />
         <Button Text="Ok"
                 Clicked="OkayClicked" />

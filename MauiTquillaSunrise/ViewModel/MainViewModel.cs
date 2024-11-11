@@ -20,7 +20,7 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     DomainModel selectedDomain;
-    
+
     private Dictionary<DomainModel, List<ServerModel>> domainDictionary = new();
 
     [ObservableProperty]
@@ -70,7 +70,7 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     bool isPasswordShowing = false;
-    
+
     [ObservableProperty]
     bool isUsernameShowing = false;
 
@@ -83,7 +83,7 @@ public partial class MainViewModel : ObservableObject
     public MainViewModel()
     {
         IsEnabled = Utilities.IsUserInitialized(User);
-        //LoadDummyServers();
+       // LoadDummyServers();
         LoadServers();
         LoadDomains();
         SetPickerDefault();
@@ -97,7 +97,9 @@ public partial class MainViewModel : ObservableObject
 
     private void LoadDomains()
     {
+        Domains.Clear();
         //initialize dictionary with ALL
+        domainDictionary.Clear();
         domainDictionary.Add(new DomainModel { DomainName = "###-ALL-###" }, _allServers.ToList());
 
         foreach (ServerModel server in _allServers)
@@ -111,7 +113,7 @@ public partial class MainViewModel : ObservableObject
 
             if (found == null)
             {
-                var domainModel = new DomainModel{ DomainName = serverArray[1] };
+                var domainModel = new DomainModel { DomainName = serverArray[1] };
                 var domainServerList = _allServers.Where(servers => servers.ServerName.Split('.')[1] == domainModel.DomainName).ToList();
 
                 domainDictionary.Add(domainModel, domainServerList);
@@ -122,11 +124,17 @@ public partial class MainViewModel : ObservableObject
         {
             Domains.Add(domainModel.Key);
         }
+
+        var sorted = Domains.SortCollection();
+        if (sorted.success == false)
+        {
+            DisplayAlert("Warning!", $"Could not sort domains: {sorted.message}");
+        }
     }
     public void PageLoaded()
     {
         _currentPage = (Page)Application.Current.MainPage;
-        
+
     }
 
     [RelayCommand]
@@ -141,7 +149,7 @@ public partial class MainViewModel : ObservableObject
             message.AppendLine(server.ServerName);
         }
 
-        var response = await GetUserConfirmationPopup(title, message.ToString());
+        var response = await GetUserConfirmationPopup(title, _serversSelected.ToList());
         if (response)
         {
             message.Clear();
@@ -152,10 +160,18 @@ public partial class MainViewModel : ObservableObject
                 Servers.Remove(server);
                 _allServers.Remove(server);
                 domainDictionary[SelectedDomain].Remove(server);
+
+                //if we removed all of the servers, then reload the domains.
+                if (domainDictionary[SelectedDomain].Count <= 0)
+                {
+                    LoadDomains();
+                    SetPickerDefault();
+                }
+
                 string removeCmdKey = Utilities.FormatDeleteCmdKey(server.ServerName);
                 CmdCommand(removeCmdKey);
             }
-            DisplayAlert(title, message.ToString()); 
+            DisplayAlert(title, message.ToString());
         }
     }
 
@@ -190,11 +206,11 @@ public partial class MainViewModel : ObservableObject
     {
         string message = string.Empty;
         string title = "Updating Credentials";
-        
+
 
         if (string.IsNullOrEmpty(serverText))
         {
-            
+
             var confirm = await GetUserConfirmationPopup("Warning!", $"You are about to update all servers in domain {SelectedDomain.DomainName} to the current set username and password.");
             if (confirm)
             {
@@ -203,7 +219,7 @@ public partial class MainViewModel : ObservableObject
                     string addCmdKey = Utilities.FormatAddCmdKey(server.ServerName, User.UserName, User.Password);
                     message = "All server credentials updated to current set username and password.";
                     CmdCommand(addCmdKey);
-                } 
+                }
             }
             else
             {
@@ -224,13 +240,28 @@ public partial class MainViewModel : ObservableObject
     {
         if (Shell.Current?.CurrentPage != null)
         {
-            _currentPage.DisplayAlert(title, message, "OK");
+            var generalAlertPage = new GeneralAlertPopupView(new GeneralAlertPopupViewModel(title, message));
+            Shell.Current.CurrentPage.ShowPopup(generalAlertPage);
+        }
+    }
+
+    private async Task<bool> GetUserConfirmationPopup(string title, List<ServerModel> servers)
+    {
+        var confirmationPage = new GetConfirmationPopup(new GetConfirmationPopupViewModel(title, servers));
+        var response = await Shell.Current.CurrentPage.ShowPopupAsync(confirmationPage);
+
+        if (response is bool foundResponse)
+        {
+            return foundResponse;
+        }
+        else
+        {
+            return false;
         }
     }
 
     private async Task<bool> GetUserConfirmationPopup(string title, string message)
     {
-        //var confirmationPage = new GetConfirmationPopup() { Title = title, Message = message };
         var confirmationPage = new GetConfirmationPopup(new GetConfirmationPopupViewModel(title, message));
         var response = await Shell.Current.CurrentPage.ShowPopupAsync(confirmationPage);
 
@@ -242,7 +273,21 @@ public partial class MainViewModel : ObservableObject
         {
             return false;
         }
-        //return response;
+    }
+
+    private async Task<bool> GetUserConfirmationPopup(string title, string message, List<ServerModel> servers)
+    {
+        var confirmationPage = new GetConfirmationPopup(new GetConfirmationPopupViewModel(title, message, servers));
+        var response = await Shell.Current.CurrentPage.ShowPopupAsync(confirmationPage);
+
+        if (response is bool foundResponse)
+        {
+            return foundResponse;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     private static string CmdCommand(string command)
@@ -339,11 +384,23 @@ public partial class MainViewModel : ObservableObject
             };
 
             ServerModel? found = _allServers.FirstOrDefault(s => s.ServerName == newServer.ServerName);
-            if (found != null)
+            //if (found != null)
+            //{
+            //    _allServers.Remove(found);
+            //}
+            //_allServers.Add(newServer);
+            switch (found)
             {
-                _allServers.Remove(found);
+                case null:
+                    _allServers.Add(newServer);
+                    LoadDomains();
+                    break;
+                default:
+                    _allServers.Remove(found);
+                    _allServers.Add(newServer);
+                    break;
             }
-            _allServers.Add(newServer);
+
 
             if (Utilities.IsUserInitialized(User) == true)
             {
@@ -364,7 +421,12 @@ public partial class MainViewModel : ObservableObject
             {
                 Servers.Add(server);
             }
-            Utilities.SortServerList(Servers);
+            //Utilities.SortServerList(Servers);
+            var sorted = Servers.SortCollection();
+            if (sorted.success == false)
+            {
+                DisplayAlert("Warning!", $"Could not sort servers: {sorted.message}");
+            }
         }
     }
 }

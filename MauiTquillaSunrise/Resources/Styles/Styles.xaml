@@ -9,6 +9,7 @@
     <Color x:Key="TquillaText">#e49b1c</Color>
     <Color x:Key="TquillaPlaceHolder">#e44c1c</Color>
     <Color x:Key="TquillaIceImageFiller">#81D4FA</Color>
+    <Color x:Key="TquillaSecondary">#e41c51</Color>
 
     <Style TargetType="Entry">
         <Setter Property="BackgroundColor" Value="{StaticResource TquillaPrimary}" />

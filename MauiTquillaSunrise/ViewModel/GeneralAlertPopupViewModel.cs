@@ -4,8 +4,12 @@ public partial class GeneralAlertPopupViewModel : ObservableObject
     [ObservableProperty]
     string message;
 
-    public GeneralAlertPopupViewModel(string message)
+    [ObservableProperty]
+    string title;
+
+    public GeneralAlertPopupViewModel(string title,string message)
     {
         Message = message;
+        Title = title;
     }
 }
