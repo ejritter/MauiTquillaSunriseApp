@@ -12,4 +12,6 @@ public partial class GeneralAlertPopupView : Popup
 	{
 		await CloseAsync();
 	}
+
+
 }

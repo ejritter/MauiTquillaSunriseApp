@@ -14,39 +14,51 @@
                          Margin="10"
                          HorizontalOptions="CenterAndExpand"
                          VerticalOptions="CenterAndExpand"
-                         MaximumHeightRequest="300"
+                         HeightRequest="600"
                          >
-        <Label Text="{Binding Title}" />
-        <Label Text="{Binding Message} "/>
+        <Label Text="{Binding Title}" FontSize="Title"/>
+        <Label Text="{Binding Message}" FontSize="Micro"/>
 
-        <HorizontalStackLayout Spacing="10"
-                               VerticalOptions="Center"
-                               HorizontalOptions="CenterAndExpand">
-            <CollectionView x:Name="ServerCollection"
-                            EmptyView="Vault currently empty"
-                            ItemsSource="{Binding Servers}"
-                            MaximumHeightRequest="150"
-                            MaximumWidthRequest="200"
+
+        <CollectionView x:Name="ServerCollection"
+                        EmptyView=""
+                        ItemsSource="{Binding Servers}"
+                        HeightRequest="100"
+                        MaximumHeightRequest="550"
+                        MaximumWidthRequest="400"
+                        VerticalOptions="Start"
                         >
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="model:ServerModel">
-                        <Grid ColumnDefinitions="*,*"
-                              ColumnSpacing="3"
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="model:ServerModel">
+                    <Grid ColumnDefinitions="Auto, *"
                               RowSpacing="5"
                               Padding="5"
                               Margin="5">
-                            <Image Grid.Column="0" 
+                        <Image Grid.Column="0" 
                                    MaximumHeightRequest="50"
                                    MaximumWidthRequest="30"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="Start"
                                    Source="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:MainViewModel}}, Path=DrinkIcon}" />
-                            <Label Grid.Column="1" 
+                        <Label Grid.Column="1" 
                                    Text="{Binding ServerName}"
-                                   FontSize="Caption"/>
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </HorizontalStackLayout>
+                                   FontSize="Caption"
+                                   VerticalOptions="Start"
+                                   HorizontalOptions="Start"/>
+                        <Label Grid.Column="1" 
+                                   Text="{Binding DomainName}"
+                                   FontSize="Caption"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="Start"/>
+                        <Label Grid.Column="1" 
+                                   Text="{Binding Port}"
+                                   FontSize="Caption"
+                                   VerticalOptions="End"
+                                   HorizontalOptions="Start"/>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
         <HorizontalStackLayout Spacing="10"
                                VerticalOptions="Center"

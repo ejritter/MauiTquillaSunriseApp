@@ -7,9 +7,14 @@ public partial class GeneralAlertPopupViewModel : ObservableObject
     [ObservableProperty]
     string title;
 
-    public GeneralAlertPopupViewModel(string title,string message)
+    [ObservableProperty]
+    bool isDismissable = true;
+
+
+    public GeneralAlertPopupViewModel(string title, string message, bool isDismissable)
     {
         Message = message;
         Title = title;
+        IsDismissable = isDismissable;
     }
 }

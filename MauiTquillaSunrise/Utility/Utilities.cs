@@ -28,6 +28,13 @@ public static class Utilities
         return output = $"cmdkey /delete:{server}";
     }
 
+    public static string FormatListCmdKey(ServerModel server)
+    {
+        string output = $"cmdkey /list:{server.ServerName}.{server.DomainName}:{server.Port}";
+
+        return output;
+    }
+
 
     public static (bool success, string message) SortCollection<T>(this ObservableCollection<T> collection) where T : new()
     {
@@ -44,6 +51,13 @@ public static class Utilities
                     property.Name.Contains(nameof(ServerModel.ServerName)))
                 {
                     var sortedCollection = collection.OrderBy(c => c.GetType().GetProperty(property.Name).GetValue(c, null)).ToList();
+                    if (item is ServerModel)
+                    {
+                        sortedCollection.Clear();
+                        sortedCollection = collection.OrderBy(c => c.GetType().GetProperty(nameof(DomainModel.DomainName)).GetValue(c, null))
+                                                     .ThenBy(c => c.GetType().GetProperty(nameof(ServerModel.ServerName)).GetValue(c, null))
+                                                     .ToList();
+                    }
                     collection.Clear();
 
                     foreach (T sortedItem in sortedCollection)

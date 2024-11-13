@@ -101,23 +101,35 @@
                             SelectionMode="Multiple"
                             SelectionChangedCommand="{Binding ServerSelectedCommand}"
                             SelectionChangedCommandParameter="{x:Reference ServerCollection}"
-                            VerticalScrollBarVisibility="Always"
                             MaximumHeightRequest="550"
                             MaximumWidthRequest="400">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:ServerModel">
-                        <Grid ColumnDefinitions="*,*"
-                              ColumnSpacing="3"
+                        <Grid ColumnDefinitions="Auto, *"
                               RowSpacing="5"
                               Padding="5"
                               Margin="5">
                             <Image Grid.Column="0" 
                                    MaximumHeightRequest="50"
                                    MaximumWidthRequest="30"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="Start"
                                    Source="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:MainViewModel}}, Path=DrinkIcon}" />
                             <Label Grid.Column="1" 
                                    Text="{Binding ServerName}"
-                                   FontSize="Caption"/>
+                                   FontSize="Caption"
+                                   VerticalOptions="Start"
+                                   HorizontalOptions="Start"/>
+                            <Label Grid.Column="1" 
+                                   Text="{Binding DomainName}"
+                                   FontSize="Caption"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="Start"/>
+                            <Label Grid.Column="1" 
+                                   Text="{Binding Port}"
+                                   FontSize="Caption"
+                                   VerticalOptions="End"
+                                   HorizontalOptions="Start"/>
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
