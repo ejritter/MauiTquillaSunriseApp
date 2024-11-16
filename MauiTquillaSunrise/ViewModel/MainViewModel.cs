@@ -436,7 +436,7 @@ public partial class MainViewModel : ObservableObject
                 {
                     if (string.IsNullOrEmpty(_errors.ToString()) == false)
                     {
-                        _errors.AppendLine("------------------------------");
+                        _errors.AppendLine();
                     }
                     _errors.AppendLine($"{_currentLine}");
                     continue;
@@ -445,8 +445,9 @@ public partial class MainViewModel : ObservableObject
             if (string.IsNullOrEmpty(_errors.ToString()) == false)
             {
                 //todo make this look better
-                _errors.AppendLine("------------------------------");
+                _errors.AppendLine("*********************************************");
                 _errors.AppendLine("Make sure servers are in a [servername].[domainname].[topleveldomain]:[port] format");
+                _errors.AppendLine("*********************************************");
             }
         }
         catch (Exception ex)
@@ -458,7 +459,7 @@ public partial class MainViewModel : ObservableObject
         {
             if (string.IsNullOrEmpty(_errors.ToString()) == false)
             {
-                _errors.Insert(0, $"Cannot manage the following\n");
+                _errors.Insert(0, $"{AppInfo.Name} cannot manage the following - \n");
                 DisplayAlert("Errors", _errors.ToString(), false);
             }
         }
