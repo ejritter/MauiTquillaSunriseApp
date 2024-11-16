@@ -4,13 +4,14 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
-    
-    <Color x:Key="TquillaPrimary">#8B0000</Color>
-    <Color x:Key="TquillaText">#e49b1c</Color>
-    <Color x:Key="TquillaPlaceHolder">#e44c1c</Color>
-    <Color x:Key="TquillaIceImageFiller">#81D4FA</Color>
-    <Color x:Key="TquillaSecondary">#e41c51</Color>
 
+    <Style TargetType="Border">
+        <Setter Property="Margin" Value="2" />
+        <Setter Property="Padding" Value="2" />
+        <Setter Property="Stroke" Value="{StaticResource TquillaSkyBlue}"/>
+        <Setter Property="StrokeThickness" Value="1"/>
+    </Style>
+    
     <Style TargetType="Entry">
         <Setter Property="BackgroundColor" Value="{StaticResource TquillaPrimary}" />
         <Setter Property="TextColor" Value="{StaticResource TquillaText}" />
