@@ -11,6 +11,27 @@ public static class Utilities
         return output = $@"cmdkey /add:{server} /user:{username} /pass:{password}";
     }
 
+    public static (string serverName, string domainName, string port) GetFullServerName(this string server)
+    {
+        string serverName = "";
+        string domainName = "";
+        string port = "";
+        try
+        {
+            serverName = server.Split('.')[0].ToString();
+            port = server.Split(':')[1].ToString();
+            domainName = server.Split('.')[1].ToString();
+            domainName += server.Split(domainName)[1];
+            domainName = domainName.Replace($":{port}", null);
+
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidDataException("Server not in a valid format. Cannot be parsed");
+        }
+
+        return (serverName, domainName, port);
+    }
 
     public static string GenerateBogusServers(int servers)
     {
@@ -30,7 +51,17 @@ public static class Utilities
 
     public static string FormatListCmdKey(ServerModel server)
     {
-        string output = $"cmdkey /list:{server.ServerName}.{server.DomainName}:{server.Port}";
+        string output;
+        if (string.IsNullOrEmpty(server.DomainName) ||
+            string.IsNullOrEmpty(server.Port))
+        {
+            output = $"cmdkey /list:{server.ServerName}";
+        }
+        else
+        {
+            output = $"cmdkey /list:{server.ServerName}.{server.DomainName}:{server.Port}";
+        }
+
 
         return output;
     }

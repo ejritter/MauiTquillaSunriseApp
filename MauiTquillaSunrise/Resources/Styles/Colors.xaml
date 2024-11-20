@@ -5,15 +5,23 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <!-- T-Quilla Theme -->
-    <Color x:Key="TquillaPrimary">#8B0000</Color>
+    <!--<Color x:Key="TquillaPrimary">#8B0000</Color>
     <Color x:Key="TquillaText">#e49b1c</Color>
     <Color x:Key="TquillaPlaceHolder">#e44c1c</Color>
     <Color x:Key="TquillaIceImageFiller">#81D4FA</Color>
     <Color x:Key="TquillaSkyBlue">#81D4FA</Color>
+    <Color x:Key="TquillaSecondary">#e41c51</Color>-->
+
+    <Color x:Key="TquillaPrimary">#81D4FA</Color>
+    <Color x:Key="TquillaText">#8B0000</Color>
+    <Color x:Key="TquillaPlaceHolder">#e44c1c</Color>
+    <Color x:Key="TquillaIceImageFiller">#81D4FA</Color>
+    <Color x:Key="TquillaSkyBlue">#81D4FA</Color>
+    <Color x:Key="TquillaBorderStroke">#FF69B4</Color>
     <Color x:Key="TquillaSecondary">#e41c51</Color>
 
 
-        <!-- Light Theme -->
+    <!-- Light Theme -->
     <Color x:Key="LightEntryBackground">#FFF5EE</Color>
     <Color x:Key="LightEntryText">#333333</Color>
     <Color x:Key="LightImageButtonBackground">#FFF5EE</Color>

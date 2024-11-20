@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:view="clr-namespace:MauiTquillaSunrise.View"
              xmlns:viewmodel="clr-namespace:MauiTquillaSunrise.ViewModel"
@@ -8,7 +9,7 @@
              x:DataType="viewmodel:MainViewModel"
              Loaded="ContentPage_Loaded"
              Title="{Binding Title}"
-             BackgroundColor="{StaticResource TquillaSecondary}">
+             BackgroundColor="{StaticResource White}">
     <VerticalStackLayout Margin="10" Spacing="10">
         <!--Entry, Password, Username, Server-->
         <Border>
@@ -87,65 +88,68 @@
             <HorizontalStackLayout Spacing="10"
                                HorizontalOptions="CenterAndExpand"
                                VerticalOptions="CenterAndExpand">
-                <Picker Title="Select Domain"
-                            ItemsSource="{Binding Domains}"
-                            ItemDisplayBinding="{Binding DomainName}"
-                            SelectedItem="{Binding SelectedDomain}"
-                            SelectedIndexChanged="PickerChanged_Event"
-                            WidthRequest="500" />
+                <Picker Title="Select Island"
+                        ToolTipProperties.Text="Islands are your domains."
+                        ItemsSource="{Binding Domains}"
+                        ItemDisplayBinding="{Binding DomainName}"
+                        SelectedItem="{Binding SelectedDomain}"
+                        SelectedIndexChanged="PickerChanged_Event"
+                        WidthRequest="500"
+                        SemanticProperties.Hint="Islands are your domains."
+                        />
             </HorizontalStackLayout>
         </Border>
 
         <!-- Server Collection and Remove Button -->
         <Border>
             <HorizontalStackLayout Spacing="10"
-                               VerticalOptions="Center"
-                               HorizontalOptions="CenterAndExpand">
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="CenterAndExpand">
                 <CollectionView x:Name="ServerCollection"
-                            EmptyView="Vault currently empty"
-                            ItemsSource="{Binding Servers}"
-                            SelectionMode="Multiple"
-                            SelectionChangedCommand="{Binding ServerSelectedCommand}"
-                            SelectionChangedCommandParameter="{x:Reference ServerCollection}"
-                            MaximumHeightRequest="400"
-                            MaximumWidthRequest="400">
+                                EmptyView="Vault currently empty"
+                                ItemsSource="{Binding Servers}"
+                                SelectionMode="Multiple"
+                                SelectionChangedCommand="{Binding ServerSelectedCommand}"
+                                SelectionChangedCommandParameter="{x:Reference ServerCollection}"
+                                MaximumHeightRequest="400"
+                                WidthRequest="250">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="model:ServerModel">
                             <Grid ColumnDefinitions="Auto, *"
-                              RowSpacing="5"
-                              Padding="5"
-                              Margin="5">
+                                  RowSpacing="5"
+                                  Padding="5"
+                                  Margin="5">
                                 <Image Grid.Column="0" 
-                                   MaximumHeightRequest="50"
-                                   MaximumWidthRequest="30"
-                                   VerticalOptions="Center"
-                                   HorizontalOptions="Start"
-                                   Source="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:MainViewModel}}, Path=DrinkIcon}" />
+                                       MaximumHeightRequest="50"
+                                       MaximumWidthRequest="30"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Start"
+                                       Source="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:MainViewModel}}, Path=DrinkIcon}" />
                                 <Label Grid.Column="1" 
-                                   Text="{Binding ServerName}"
-                                   FontSize="Caption"
-                                   VerticalOptions="Start"
-                                   HorizontalOptions="Start"/>
+                                       Text="{Binding ServerName}"
+                                       FontSize="Caption"
+                                       VerticalOptions="Start"
+                                       HorizontalOptions="Start"/>
                                 <Label Grid.Column="1" 
-                                   Text="{Binding DomainName}"
-                                   FontSize="Caption"
-                                   VerticalOptions="Center"
-                                   HorizontalOptions="Start"/>
+                                       Text="{Binding DomainName}"
+                                       FontSize="Caption"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Start"/>
                                 <Label Grid.Column="1" 
-                                   Text="{Binding Port}"
-                                   FontSize="Caption"
-                                   VerticalOptions="End"
-                                   HorizontalOptions="Start"/>
+                                       Text="{Binding Port}"
+                                       FontSize="Caption"
+                                       VerticalOptions="End"
+                                       HorizontalOptions="Start"/>
                             </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
                 <ImageButton HorizontalOptions="Center"
-                         Source="{Binding RemoveServerIcon}"
-                         WidthRequest="30"
-                         HeightRequest="30"
-                         Command="{Binding RemoveServerCommand}"
-                         IsVisible="{Binding IsServerSelected}" />
+                             Source="{Binding RemoveServerIcon}"
+                             WidthRequest="30"
+                             HeightRequest="30"
+                             Command="{Binding RemoveServerCommand}"
+                             IsVisible="{Binding IsServerSelected}" />
             </HorizontalStackLayout>
         </Border>
     </VerticalStackLayout>

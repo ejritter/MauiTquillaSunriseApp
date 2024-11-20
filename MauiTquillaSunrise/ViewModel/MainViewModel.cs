@@ -12,11 +12,15 @@ public partial class MainViewModel : ObservableObject
     private static string addIcon = "ic_fluent_add_24_filled.png";
     private static string minusIcon = "ic_fluent_subtract_24_regular.png";
     private static string drinkImage = "drinkicon.png";
+    private static string serverImage = "ic_fluent_server_24_regular.png";
     private static string emptyDrinkImage = "emptydrinkicon.png";
 
     private Page _currentPage;
     private List<ServerModel> _serversSelected = new();
     private List<ServerModel> _allServers = new();
+
+    private ServerModel _newServer;
+
 
     [ObservableProperty]
     DomainModel selectedDomain;
@@ -26,6 +30,9 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     string emptyDrinkIcon = emptyDrinkImage;
+   
+    [ObservableProperty]
+    string serverIcon = serverImage;
 
     [ObservableProperty]
     string drinkIcon = drinkImage;
@@ -102,6 +109,56 @@ public partial class MainViewModel : ObservableObject
         SelectedDomain = Domains.First(d => d.DomainName == domainName);
     }
 
+    [RelayCommand]
+    public void AddServer(string server)
+    {
+        if ((string.IsNullOrEmpty(server) ||
+            (server.Split('.').Count() < 3)))
+        {
+            return;
+        }
+
+        else
+        {
+
+            (string serverName, string domainName, string port) = server.GetFullServerName();
+
+           if (string.IsNullOrEmpty(serverName) ||
+                string.IsNullOrEmpty(domainName) ||
+                string.IsNullOrEmpty(port))
+            {
+                throw new InvalidDataException("Server is not in a valid format and cannot be managed.");
+            }
+
+            _newServer = new ServerModel()
+            {
+                ServerName = serverName,
+                DomainName = domainName,
+                Port = port
+            };
+
+            ServerModel? found = _allServers.
+                                   FirstOrDefault(s => $"{s.ServerName}.{s.DomainName}" == $"{_newServer.ServerName}.{_newServer.DomainName}");
+            switch (found)
+            {
+                case null:
+                    _allServers.Add(_newServer);
+                    LoadDomains();
+                    SetPickerDefault(_newServer.DomainName);
+                    break;
+                default:
+                    _allServers.Remove(found);
+                    _allServers.Add(_newServer);
+                    break;
+            }
+
+            if (Utilities.IsUserInitialized(User) == true)
+            {
+                UpdateCredentials(ServerText);
+            }
+            ServerText = string.Empty;
+        }
+    }
     private void LoadDomains()
     {
         Domains.Clear();
@@ -111,8 +168,8 @@ public partial class MainViewModel : ObservableObject
 
         foreach (ServerModel server in _allServers)
         {
-            //string[] serverArray = server.ServerName.Split('.');
-            ////0 server
+            //string[] serverArray = _server.ServerName.Split('.');
+            ////0 _server
             ////1 domainName
             ////2 domain (com, org etc)
             var found = domainDictionary.FirstOrDefault(domains => domains.Key.DomainName == server.DomainName)
@@ -138,6 +195,91 @@ public partial class MainViewModel : ObservableObject
             DisplayAlert("Warning!", $"Could not sort domains: {sorted.message}", true);
         }
     }
+
+    [RelayCommand]
+    public async void UpdateCredentials(string? serverText)
+    {
+        StringBuilder _message = new();
+        string _title = "Updating Credentials";
+        bool _errors = false;
+
+        if (isBusy)
+        {
+            return;
+        }
+
+        isBusy = true;
+        try
+        {
+            if (string.IsNullOrEmpty(serverText))
+            {
+                _message.AppendLine($"Update servers for selected domain: {SelectedDomain.DomainName}?");
+                var confirm = await GetUserConfirmationPopup(_title, _message.ToString(), Servers.ToList());
+                if (confirm)
+                {
+                    _message.Clear();
+                    try
+                    {
+                        foreach (ServerModel _server in Servers)
+                        {
+                            string addCmdKey = Utilities.FormatAddCmdKey(_server.ServerName, User.UserName, User.Password);
+                            CmdCommand(addCmdKey);
+                            if (CheckIfServerExists(_server) == false)
+                            {
+                                throw new Exception($"Unknown error adding {_server.ServerName}.{_server.DomainName}:{_server.Port} using CmdKey: {addCmdKey}");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        //error found/thrown manually trying to do reach loop
+                        _errors = true;
+                        _title = "Error";
+                        _message.AppendLine($"{ex.Message}");
+                    }
+                }
+                else
+                {
+                    //user cancelled
+                    _message.Clear();
+                    _message.AppendLine("Update cancelled.");
+                }
+            }
+            else
+            {
+                //update single _server
+                try
+                {
+                    string addCmdKey = Utilities.FormatAddCmdKey(serverText, User.UserName, User.Password);
+                    CmdCommand(addCmdKey);
+                    if (CheckIfServerExists(_newServer) == false)
+                    {
+                        throw new Exception($"Unknown error adding {serverText} using CmdKey: {addCmdKey}");
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    _errors = true;
+                    _title = "Error";
+                    _message.AppendLine($"{ex.Message}");
+                    RemoveServer(_newServer);
+                }
+
+            }
+        }
+        finally
+        {
+
+            isBusy = false;
+            if (_errors == false)
+            {
+                _message.AppendLine("Done.");
+            }
+            DisplayAlert(_title, _message.ToString(), false);
+        }
+    }
+
     public void PageLoaded()
     {
         _currentPage = (Page)Application.Current.MainPage;
@@ -148,6 +290,34 @@ public partial class MainViewModel : ObservableObject
 
     }
 
+
+    private async void RemoveServer(ServerModel server)
+    {
+        if (isBusy)
+        {
+            return;
+        }
+        isBusy = true;
+
+        try
+        {
+            if (CheckIfServerExists(server))
+            {
+                var serverDomain = Domains.First(d => d.DomainName == server.DomainName);
+                Servers.Remove(server);
+                _allServers.Remove(server);
+                domainDictionary[serverDomain].Remove(server);
+            }
+        }
+        catch (Exception ex)
+        {
+            var _ = await GetUserConfirmationPopup("Error removing server", $"{server.ServerName} could not be removed: {ex.Message}");
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
     [RelayCommand]
     public async void RemoveServer()
     {
@@ -245,88 +415,7 @@ public partial class MainViewModel : ObservableObject
         RevealPasswordButtonIcon = RevealPasswordButtonIcon == eyeOffIcon ? eyeIcon : eyeOffIcon;
     }
 
-    [RelayCommand]
-    public async void UpdateCredentials(string? serverText)
-    {
-        StringBuilder _message = new();
-        string _title = "Updating Credentials";
-        bool _errors = false;
-
-        if (isBusy)
-        {
-            return;
-        }
-
-        isBusy = true;
-        try
-        {
-            if (string.IsNullOrEmpty(serverText))
-            {
-                _message.AppendLine($"Update servers for selected domain: {SelectedDomain.DomainName}?");
-                var confirm = await GetUserConfirmationPopup(_title, _message.ToString(), Servers.ToList());
-                if (confirm)
-                {
-                    _message.Clear();
-                    try
-                    {
-                        foreach (ServerModel server in Servers)
-                        {
-                            string addCmdKey = Utilities.FormatAddCmdKey(server.ServerName, User.UserName, User.Password);
-                            CmdCommand(addCmdKey);
-                            if (CheckIfServerExists(server) == false)
-                            {
-                                throw new Exception($"Unknown error adding {server.ServerName}.{server.DomainName}:{server.Port} using CmdKey: {addCmdKey}");
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        //error found/thrown manually trying to do reach loop
-                        _errors = true;
-                        _title = "Error";
-                        _message.AppendLine($"{ex.Message}");
-                    }
-                }
-                else
-                {
-                    //user cancelled
-                    _message.Clear();
-                    _message.AppendLine("Update cancelled.");
-                }
-            }
-            else
-            {
-                //update single server
-                try
-                {
-                    string addCmdKey = Utilities.FormatAddCmdKey(serverText, User.UserName, User.Password);
-                    CmdCommand(addCmdKey);
-                    if (CheckIfServerExists(new ServerModel { ServerName = serverText }) == false)
-                    {
-                        throw new Exception($"Unknown error adding {serverText} using CmdKey: {addCmdKey}");
-                    }
-                }
-                catch (Exception ex)
-                {
-
-                    _errors = true;
-                    _title = "Error";
-                    _message.AppendLine($"{ex.Message}");
-                }
-
-            }
-        }
-        finally
-        {
-
-            isBusy = false;
-            if (_errors == false)
-            {
-                _message.AppendLine("Done.");
-            }
-            DisplayAlert(_title, _message.ToString(), false);
-        }
-    }
+    
 
     private void DisplayAlert(string title, string message, bool isDismissable)
     {
@@ -502,50 +591,9 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    public void AddServer(string server)
-    {
-        if (string.IsNullOrEmpty(server))
-        {
-            return;
-        }
-        else
-        {
-            string serverName = server.Split('.')[0].ToString();
-            string port = server.Split(':')[1].ToString();
-            string domainName = server.Split('.')[1].ToString();
-            domainName += server.Split(domainName)[1];
-            domainName = domainName.Replace($":{port}", null);
 
-            var newServer = new ServerModel()
-            {
-                ServerName = serverName,
-                DomainName = domainName,
-                Port = port
-            };
 
-            ServerModel? found = _allServers.
-                                   FirstOrDefault(s => $"{s.ServerName}.{s.DomainName}" == $"{newServer.ServerName}.{newServer.DomainName}");
-            switch (found)
-            {
-                case null:
-                    _allServers.Add(newServer);
-                    LoadDomains();
-                    SetPickerDefault(newServer.DomainName);
-                    break;
-                default:
-                    _allServers.Remove(found);
-                    _allServers.Add(newServer);
-                    break;
-            }
 
-            if (Utilities.IsUserInitialized(User) == true)
-            {
-                UpdateCredentials(ServerText);
-            }
-            ServerText = string.Empty;
-        }
-    }
 
     public void PickerChanged_Event(object sender, EventArgs e)
     {

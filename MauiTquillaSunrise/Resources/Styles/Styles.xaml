@@ -8,8 +8,9 @@
     <Style TargetType="Border">
         <Setter Property="Margin" Value="2" />
         <Setter Property="Padding" Value="2" />
-        <Setter Property="Stroke" Value="{StaticResource TquillaSkyBlue}"/>
+        <Setter Property="Stroke" Value="{StaticResource TquillaBorderStroke}"/>
         <Setter Property="StrokeThickness" Value="1"/>
+        
     </Style>
     
     <Style TargetType="Entry">
@@ -22,18 +23,18 @@
         <Setter Property="Source" Value="{DynamicResource ImageButtonIcon}" />
     </Style>
     <Style TargetType="Image" >
-        <Setter Property="BackgroundColor" Value="{StaticResource TquillaPlaceHolder}" />
+        
     </Style>
     <Style TargetType="Label">
         <Setter Property="TextColor" Value="{StaticResource TquillaText}" />
         <Setter Property="WidthRequest" Value="200" />
     </Style>
     <Style TargetType="CollectionView">
-        <Setter Property="BackgroundColor" Value="{StaticResource TquillaPlaceHolder}" />
+        
     </Style>
     <Style TargetType="Button">
         <Setter Property="BackgroundColor" Value="{StaticResource TquillaPrimary}" />
-        <Setter Property="TextColor" Value="{StaticResource TquillaIceImageFiller}" />
+        <Setter Property="TextColor" Value="{StaticResource TquillaText}" />
         <Setter Property="WidthRequest" Value="200" />
         <Setter Property="Padding" Value="5" />
     </Style>

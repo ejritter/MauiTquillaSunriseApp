@@ -8,7 +8,7 @@
              x:Class="MauiTquillaSunrise.View.GetConfirmationPopup"
              x:DataType="viewmodel:GetConfirmationPopupViewModel"
              CanBeDismissedByTappingOutsideOfPopup="False"
-            Color="{StaticResource TquillaSecondary}"
+            Color="White"
              >
     <VerticalStackLayout Spacing="10" 
                          Margin="10"
@@ -16,11 +16,17 @@
                          VerticalOptions="CenterAndExpand"
                          HeightRequest="600"
                          >
-        <Label Text="{Binding Title}" FontSize="Title"/>
-        <Label Text="{Binding Message}" FontSize="Micro"/>
+        <Border>
+            <Label Text="{Binding Title}" FontSize="Title"/>
+        </Border>
+
+        <Border>
+            <Label Text="{Binding Message}" FontSize="Micro"/>
+        </Border>
 
 
-        <CollectionView x:Name="ServerCollection"
+        <Border>
+            <CollectionView x:Name="ServerCollection"
                         EmptyView=""
                         ItemsSource="{Binding Servers}"
                         HeightRequest="100"
@@ -28,47 +34,50 @@
                         MaximumWidthRequest="400"
                         VerticalOptions="Start"
                         >
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="model:ServerModel">
-                    <Grid ColumnDefinitions="Auto, *"
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:ServerModel">
+                        <Grid ColumnDefinitions="Auto, *"
                               RowSpacing="5"
                               Padding="5"
                               Margin="5">
-                        <Image Grid.Column="0" 
+                            <Image Grid.Column="0" 
                                    MaximumHeightRequest="50"
                                    MaximumWidthRequest="30"
                                    VerticalOptions="Center"
                                    HorizontalOptions="Start"
                                    Source="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:MainViewModel}}, Path=DrinkIcon}" />
-                        <Label Grid.Column="1" 
+                            <Label Grid.Column="1" 
                                    Text="{Binding ServerName}"
                                    FontSize="Caption"
                                    VerticalOptions="Start"
                                    HorizontalOptions="Start"/>
-                        <Label Grid.Column="1" 
+                            <Label Grid.Column="1" 
                                    Text="{Binding DomainName}"
                                    FontSize="Caption"
                                    VerticalOptions="Center"
                                    HorizontalOptions="Start"/>
-                        <Label Grid.Column="1" 
+                            <Label Grid.Column="1" 
                                    Text="{Binding Port}"
                                    FontSize="Caption"
                                    VerticalOptions="End"
                                    HorizontalOptions="Start"/>
-                    </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Border>
 
-        <HorizontalStackLayout Spacing="10"
+        
+            <HorizontalStackLayout Spacing="10"
                                VerticalOptions="Center"
                                HorizontalOptions="CenterAndExpand">
-            <Button Text="Ok" Clicked="Okay_Clicked" 
+                <Button Text="Ok" Clicked="Okay_Clicked" 
                     VerticalOptions="End"
                     HorizontalOptions="Center"/>
-            <Button Text="Cancel" Clicked="Cancel_Clicked"
+                <Button Text="Cancel" Clicked="Cancel_Clicked"
                     VerticalOptions="End"
                     HorizontalOptions="Center"/>
-        </HorizontalStackLayout>
+            </HorizontalStackLayout>
+        
     </VerticalStackLayout>
 </mct:Popup>
