@@ -67,8 +67,10 @@ When selecing a server in the Domain list, user has the option to remove it
 
 If all servers within a domain are removed, that domain is removed and the Picker is defaulted to ###-ALL-###.
 ## DOES NOT
-Does not validate the entered credentials against any systems. 
+Validate the entered credentials against any systems. 
 It is assumed that the user knows the correct credentials to enter for any domain or domains they are managing.
+
+Store Credentials permanently. All credentials are within the application life span. Once the application is closed, username and password information is gone.
 
 Although written in Maui, it is not targeting any platform outside of Windows.
 
