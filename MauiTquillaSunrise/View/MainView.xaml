@@ -83,12 +83,18 @@
                 </VerticalStackLayout>
             </HorizontalStackLayout>
         </Border>
-        <!--Domain Picker-->
+
+        <!--Server Count and Domain Picker-->
         <Border>
-            <HorizontalStackLayout Spacing="10"
-                               HorizontalOptions="CenterAndExpand"
-                               VerticalOptions="CenterAndExpand">
-                <Picker Title="Select Island"
+            <VerticalStackLayout Spacing="10"
+                                 HorizontalOptions="CenterAndExpand"
+                                 VerticalOptions="CenterAndExpand">
+                <HorizontalStackLayout>
+                    <Label Text="Server Count:" />
+                    <Label Text="{Binding ServerCount}" />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout>
+                    <Picker Title="Select Island"
                         ToolTipProperties.Text="Islands are your domains."
                         ItemsSource="{Binding Domains}"
                         ItemDisplayBinding="{Binding DomainName}"
@@ -97,7 +103,8 @@
                         WidthRequest="500"
                         SemanticProperties.Hint="Islands are your domains."
                         />
-            </HorizontalStackLayout>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
         </Border>
 
         <!-- Server Collection and Remove Button -->

@@ -19,6 +19,7 @@
     <Color x:Key="TquillaSkyBlue">#81D4FA</Color>
     <Color x:Key="TquillaBorderStroke">#FF69B4</Color>
     <Color x:Key="TquillaSecondary">#e41c51</Color>
+    <Color x:Key="TquillaDisabled">#C8C8C8</Color>
 
 
     <!-- Light Theme -->

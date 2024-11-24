@@ -1,9 +1,11 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 
 namespace MauiTquillaSunrise.ViewModel;
 public partial class MainViewModel : ObservableObject
 {
+
     private static string cmdKeyList = @"cmdkey /list";
     private static string hide = "Press to hide password.";
     private static string show = "Press to show password.";
@@ -14,6 +16,9 @@ public partial class MainViewModel : ObservableObject
     private static string drinkImage = "drinkicon.png";
     private static string serverImage = "ic_fluent_server_24_regular.png";
     private static string emptyDrinkImage = "emptydrinkicon.png";
+    private const string _allDomain = "###-ALL-###";
+    private const string _infoTag = "!***INFO***!";
+    private const string _infoFormat = "Make sure servers are in a [servername].[domainname].[topleveldomain]:[port] format";
 
     private Page _currentPage;
     private List<ServerModel> _serversSelected = new();
@@ -30,7 +35,7 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     string emptyDrinkIcon = emptyDrinkImage;
-   
+
     [ObservableProperty]
     string serverIcon = serverImage;
 
@@ -88,48 +93,98 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     bool isServerSelected = false;
 
+    [ObservableProperty]
+    int serverCount = 0;
     public MainViewModel()
     {
         IsEnabled = Utilities.IsUserInitialized(User);
-       //// LoadDummyServers();
-       // LoadServers();
-       // LoadDomains();
-       // SetPickerDefault();
     }
 
     private void SetPickerDefault()
     {
         //should always have the ###-ALL-### DomainModel.
         SelectedDomain = Domains[0];
+
+        var picker = new Picker { SelectedIndex = Domains.IndexOf(SelectedDomain) };
+        PickerChanged_Event(picker, EventArgs.Empty);
+
     }
 
+    private void ServerCollection_Changed(object? sender, EventArgs e)
+    {
+        ServerCount = Servers.Count;
+    }
     private void SetPickerDefault(string domainName)
     {
         //should always have the ###-ALL-### DomainModel.
         SelectedDomain = Domains.First(d => d.DomainName == domainName);
+        var picker = new Picker { SelectedIndex = Domains.IndexOf(SelectedDomain) };
+        PickerChanged_Event(picker, EventArgs.Empty);
     }
 
-    [RelayCommand]
-    public void AddServer(string server)
+
+    private void AddServers(string server)
     {
-        if ((string.IsNullOrEmpty(server) ||
-            (server.Split('.').Count() < 3)))
+        if (string.IsNullOrEmpty(server))
         {
             return;
         }
 
         else
         {
-
-            (string serverName, string domainName, string port) = server.GetFullServerName();
-
-           if (string.IsNullOrEmpty(serverName) ||
-                string.IsNullOrEmpty(domainName) ||
-                string.IsNullOrEmpty(port))
+            (string serverName, string domainName, string port, string errorMessage) = server.GetFullServerName();
+            if(errorMessage.Length > 0)
             {
-                throw new InvalidDataException("Server is not in a valid format and cannot be managed.");
+                throw new InvalidDataException(errorMessage);
+            }
+            _newServer = new ServerModel()
+            {
+                ServerName = serverName,
+                DomainName = domainName,
+                Port = port
+            };
+
+            ServerModel? found = _allServers.
+                                   FirstOrDefault(s => $"{s.ServerName}.{s.DomainName}" == $"{_newServer.ServerName}.{_newServer.DomainName}");
+            switch (found)
+            {
+                case null:
+                    _allServers.Add(_newServer);
+                    LoadDomains();
+                    SetPickerDefault(_newServer.DomainName);
+                    break;
+                default:
+                    _allServers.Remove(found);
+                    _allServers.Add(_newServer);
+                    break;
             }
 
+            if (Utilities.IsUserInitialized(User) == true)
+            {
+                UpdateCredentials(ServerText);
+            }
+            ServerText = string.Empty;
+        }
+    }
+
+    [RelayCommand]
+    public void AddServer(string server)
+    {
+        if (string.IsNullOrEmpty(server))
+        {
+            return;
+        }
+
+        else
+        {
+            (string serverName, string domainName, string port, string errorMessage) = server.GetFullServerName();
+            if (errorMessage.Length > 0)
+            {
+                errorMessage = $"{errorMessage}\n{_infoTag}\n{_infoFormat}";
+                DisplayAlert("Warning!", errorMessage, true);
+                return;
+            }
+            //successfull.
             _newServer = new ServerModel()
             {
                 ServerName = serverName,
@@ -164,14 +219,14 @@ public partial class MainViewModel : ObservableObject
         Domains.Clear();
         //initialize dictionary with ALL
         domainDictionary.Clear();
-        domainDictionary.Add(new DomainModel { DomainName = "###-ALL-###" }, _allServers.ToList());
+        domainDictionary.Add(new DomainModel { DomainName = _allDomain }, _allServers.ToList());
 
         foreach (ServerModel server in _allServers)
         {
             //string[] serverArray = _server.ServerName.Split('.');
             ////0 _server
             ////1 domainName
-            ////2 domain (com, org etc)
+            ////2 topleveldomain (com, org etc)
             var found = domainDictionary.FirstOrDefault(domains => domains.Key.DomainName == server.DomainName)
                                         .Key;
 
@@ -179,7 +234,6 @@ public partial class MainViewModel : ObservableObject
             {
                 var domainModel = new DomainModel { DomainName = server.DomainName };
                 var domainServerList = _allServers.Where(servers => servers.DomainName == domainModel.DomainName).ToList();
-
                 domainDictionary.Add(domainModel, domainServerList);
             }
         }
@@ -287,7 +341,7 @@ public partial class MainViewModel : ObservableObject
         LoadServers();
         LoadDomains();
         SetPickerDefault();
-
+        Servers.CollectionChanged += ServerCollection_Changed;
     }
 
 
@@ -303,10 +357,7 @@ public partial class MainViewModel : ObservableObject
         {
             if (CheckIfServerExists(server))
             {
-                var serverDomain = Domains.First(d => d.DomainName == server.DomainName);
-                Servers.Remove(server);
-                _allServers.Remove(server);
-                domainDictionary[serverDomain].Remove(server);
+                await RemoveServerFromCollections(server);
             }
         }
         catch (Exception ex)
@@ -318,6 +369,29 @@ public partial class MainViewModel : ObservableObject
             isBusy = false;
         }
     }
+
+    private async Task RemoveServerFromCollections(ServerModel server)
+    {
+        var serverDomain = Domains.First(d => d.DomainName == server.DomainName);
+        var allDomains = Domains.First(d => d.DomainName == _allDomain);
+
+        string removeCmdKey = Utilities.FormatDeleteCmdKey($"{server.ServerName}.{server.DomainName}:{server.Port}");
+        CmdCommand(removeCmdKey);
+        _allServers.Remove(server);
+        domainDictionary[serverDomain].Remove(server);
+        domainDictionary[allDomains].Remove(server);
+        Servers.Remove(server);
+        if (domainDictionary[serverDomain].Count <= 0)
+        {
+            LoadDomains();
+            SetPickerDefault();
+        }
+        //else
+        //{
+        //    SetPickerDefault(server.DomainName);
+        //}
+    }
+
     [RelayCommand]
     public async void RemoveServer()
     {
@@ -330,9 +404,9 @@ public partial class MainViewModel : ObservableObject
         try
         {
             StringBuilder message = new();
-            message.AppendLine($"Remove the following servers from {SelectedDomain.DomainName}?");
             string title = "Removing Servers";
-            message.Clear();
+            message.Append($"Managing: {SelectedDomain.DomainName} ");
+            message.AppendLine($"Server Count: {_serversSelected.ToList().Count} ");
 
             var response = await GetUserConfirmationPopup(title, message.ToString(), _serversSelected.ToList());
             if (response)
@@ -341,17 +415,7 @@ public partial class MainViewModel : ObservableObject
                 {
                     if (CheckIfServerExists(server))
                     {
-                        var serverDomain = Domains.First(d => d.DomainName == server.DomainName);
-                        Servers.Remove(server);
-                        _allServers.Remove(server);
-                        domainDictionary[serverDomain].Remove(server);
-                        string removeCmdKey = Utilities.FormatDeleteCmdKey($"{server.ServerName}.{server.DomainName}:{server.Port}");
-                        CmdCommand(removeCmdKey);
-                        if (domainDictionary[serverDomain].Count <= 0)
-                        {
-                            LoadDomains();
-                            SetPickerDefault();
-                        }
+                        await RemoveServerFromCollections(server);
                     }
                     else
                     {
@@ -360,7 +424,7 @@ public partial class MainViewModel : ObservableObject
                 }
                 if (errors == false)
                 {
-                    message.AppendLine("Done.");   
+                    message.AppendLine("Done.");
                 }
                 DisplayAlert(title, message.ToString(), false);
             }
@@ -415,7 +479,7 @@ public partial class MainViewModel : ObservableObject
         RevealPasswordButtonIcon = RevealPasswordButtonIcon == eyeOffIcon ? eyeIcon : eyeOffIcon;
     }
 
-    
+
 
     private void DisplayAlert(string title, string message, bool isDismissable)
     {
@@ -497,8 +561,6 @@ public partial class MainViewModel : ObservableObject
     }
 
 
-
-
     private void LoadServers()
     {
 
@@ -518,7 +580,7 @@ public partial class MainViewModel : ObservableObject
                         int startIndex = _currentLine.IndexOf('=') + 1;
                         int endIndex = _currentLine.Length - startIndex;
                         string serverName = _currentLine.Substring(startIndex, endIndex);
-                        AddServer(serverName);
+                        AddServers(serverName);
                     }
                 }
                 catch
@@ -534,8 +596,8 @@ public partial class MainViewModel : ObservableObject
             if (string.IsNullOrEmpty(_errors.ToString()) == false)
             {
                 //todo make this look better
-                _errors.AppendLine("-------------------------------------------");
-                _errors.AppendLine("Make sure servers are in a [servername].[domainname].[topleveldomain]:[port] format");
+                _errors.AppendLine(_infoTag);
+                _errors.AppendLine(_infoFormat);
             }
         }
         catch (Exception ex)
@@ -592,21 +654,17 @@ public partial class MainViewModel : ObservableObject
     }
 
 
-
-
-
     public void PickerChanged_Event(object sender, EventArgs e)
     {
         if (sender is Picker picker && picker.SelectedIndex >= 0)
         {
-            var selectedDomain = Domains[picker.SelectedIndex];
-            var domainServers = domainDictionary[selectedDomain];
+            SelectedDomain = Domains[picker.SelectedIndex];
             Servers.Clear();
-            foreach (ServerModel server in domainServers)
+            foreach (ServerModel server in domainDictionary[SelectedDomain])
             {
                 Servers.Add(server);
             }
-            //Utilities.SortServerList(Servers);
+            ServerCollection_Changed(Servers, EventArgs.Empty);
             var sorted = Servers.SortCollection();
             if (sorted.success == false)
             {

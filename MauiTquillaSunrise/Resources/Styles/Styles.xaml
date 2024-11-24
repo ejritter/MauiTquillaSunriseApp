@@ -17,6 +17,18 @@
         <Setter Property="BackgroundColor" Value="{StaticResource TquillaPrimary}" />
         <Setter Property="TextColor" Value="{StaticResource TquillaText}" />
         <Setter Property="PlaceholderColor" Value="{StaticResource TquillaPlaceHolder}" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource TquillaDisabled}"/>
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
     <Style TargetType="ImageButton">
         <Setter Property="BackgroundColor" Value="{StaticResource TquillaPrimary}" />
@@ -37,6 +49,18 @@
         <Setter Property="TextColor" Value="{StaticResource TquillaText}" />
         <Setter Property="WidthRequest" Value="200" />
         <Setter Property="Padding" Value="5" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource TquillaDisabled}"/>
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
     
     <Style TargetType="Picker">

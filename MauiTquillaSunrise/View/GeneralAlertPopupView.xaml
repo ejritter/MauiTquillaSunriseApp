@@ -13,12 +13,18 @@
                          HorizontalOptions="CenterAndExpand"
                          VerticalOptions="CenterAndExpand">
         <Border>
-            <Label Text="{Binding Title}" FontSize="Title" />
+            <VerticalStackLayout Spacing="10"
+                                 Margin="10"
+                                 HorizontalOptions="CenterAndExpand"
+                                 VerticalOptions="CenterAndExpand">
+                <Label Text="{Binding Title}" FontSize="Title" />
+                <ScrollView VerticalOptions="FillAndExpand" HeightRequest="300" WidthRequest="400">
+                    <Label Text="{Binding Message}" FontSize="Micro" />
+                </ScrollView>
+            </VerticalStackLayout>
         </Border>
         
-            <ScrollView VerticalOptions="FillAndExpand" HeightRequest="300" WidthRequest="400">
-                <Label Text="{Binding Message}" FontSize="14" Padding="10" HorizontalOptions="FillAndExpand"/>
-            </ScrollView>
+
         
         
             <Button Text="Ok" Clicked="OkayClicked" HorizontalOptions="Center"/>

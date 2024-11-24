@@ -1,36 +1,79 @@
-﻿
-
-
-namespace MauiTquillaSunrise.Utility;
+﻿namespace MauiTquillaSunrise.Utility;
 public static class Utilities
 {
     private static Random random = new();
+    private const string _invalidFormat = "Server is not in a valid format and cannot be managed.";
     public static string FormatAddCmdKey(string server, string username, string password)
     {
         string output;
         return output = $@"cmdkey /add:{server} /user:{username} /pass:{password}";
     }
 
-    public static (string serverName, string domainName, string port) GetFullServerName(this string server)
+
+    public static (string serverName, string fullDomainName, string port, string errorMessage) GetFullServerName(this string server)
+    {
+        StringBuilder errorMessage = new();
+        string serverName = "";
+        string fullDomainName = "";
+        string topLevelDomain = "";
+        string port = "";
+        try
+        {
+            if (server.IndexOf(":") < server.IndexOf("."))
+            {
+                throw new InvalidDataException(_invalidFormat);
+            }
+            serverName = server.Split('.')[0].ToString();
+            fullDomainName = server.Split('.')[1].ToString();
+            topLevelDomain = server.Split('.')[2].ToString();
+            port = server.Split(':')[1].ToString();
+            topLevelDomain = topLevelDomain.Replace($":{port}", null);
+            fullDomainName = $"{fullDomainName}.{topLevelDomain}";
+            
+            if(serverName.Length + fullDomainName.Length + topLevelDomain.Length + port.Length == 0)
+            {
+                throw new InvalidDataException(_invalidFormat);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage.AppendLine("Error parsing server name.");
+            errorMessage.AppendLine($"Error: {ex.Message}");
+        }
+        return (serverName, fullDomainName, port, errorMessage.ToString());
+    }
+    public static (string serverName, string fullDomainName, string port) GetFullServerNameOriginal(this string server)
     {
         string serverName = "";
-        string domainName = "";
+        string fullDomainName = "";
+        string topLevelDomain = "";
         string port = "";
         try
         {
             serverName = server.Split('.')[0].ToString();
+            fullDomainName = server.Split('.')[1].ToString();
+            topLevelDomain = server.Split('.')[2].ToString();
             port = server.Split(':')[1].ToString();
-            domainName = server.Split('.')[1].ToString();
-            domainName += server.Split(domainName)[1];
-            domainName = domainName.Replace($":{port}", null);
+            topLevelDomain = topLevelDomain.Replace($":{port}", null);
+            fullDomainName = $"{fullDomainName}.{topLevelDomain}";
+
+            if (string.IsNullOrEmpty(serverName) ||
+                string.IsNullOrEmpty(fullDomainName) ||
+                string.IsNullOrEmpty(topLevelDomain) ||
+                string.IsNullOrEmpty(port))
+            {
+                throw new InvalidDataException("Server is not in a valid format and cannot be managed.");
+            }
 
         }
-        catch (Exception ex)
+        catch (InvalidDataException ex)
         {
-            throw new InvalidDataException("Server not in a valid format. Cannot be parsed");
+            StringBuilder errorMessage = new();
+            errorMessage.AppendLine("Error parsing server name.");
+            errorMessage.AppendLine($"Error: {ex.Message}");
+            throw new InvalidDataException(errorMessage.ToString());
         }
-
-        return (serverName, domainName, port);
+        return (serverName, fullDomainName, port);
     }
 
     public static string GenerateBogusServers(int servers)
@@ -61,8 +104,6 @@ public static class Utilities
         {
             output = $"cmdkey /list:{server.ServerName}.{server.DomainName}:{server.Port}";
         }
-
-
         return output;
     }
 

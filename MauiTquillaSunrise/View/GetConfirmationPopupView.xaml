@@ -17,14 +17,14 @@
                          HeightRequest="600"
                          >
         <Border>
-            <Label Text="{Binding Title}" FontSize="Title"/>
+            <VerticalStackLayout Spacing="10"
+                                 Margin="10"
+                                 HorizontalOptions="CenterAndExpand"
+                                 VerticalOptions="CenterAndExpand">
+                    <Label Text="{Binding Title}" FontSize="Title"/>
+                    <Label Text="{Binding Message}" FontSize="Micro"/>
+            </VerticalStackLayout>
         </Border>
-
-        <Border>
-            <Label Text="{Binding Message}" FontSize="Micro"/>
-        </Border>
-
-
         <Border>
             <CollectionView x:Name="ServerCollection"
                         EmptyView=""
