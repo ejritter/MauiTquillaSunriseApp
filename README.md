@@ -13,34 +13,46 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 For any questions or feedback, please contact me at ejritter87@gmail.com.
 ## Welcome!
+This app is built to help me learn how to work with MAUI. It is a simple app that will allow you to manage your T-SQL credentials in Windows Credential Manager.
+This is accomplished utilizing the cmdkey commands.
 
-Sip into Simplicity with Maui T-Quilla Sunrise! We've mixed the perfect blend to kick those Windows Credential Manager blues to the curb—no salt or lime; just cmdKey required.
-Maui T-Quilla Sunrise is your refreshing solution to T-SQL credential chaos. Forget fumbling through the Windows Credential Manager; we've bottled convenience in a sleek Windows app that's as smooth as a tropical breeze on a Maui day.
+## DOES
+Runs cmdkey /list up front and will parse all entries found. Errors will be reported if a server cannot be managed by the app.
+!add error screenshot
 
-Speaking of Maui, it is built using Maui .net 8 and specifically targets the Windows PC audience.
-This was built using Maui as a way to learn the framework. I had a lot of fun on this dream island.
+Once the app is loaded, user is free to enter username and password. 
+!add basic UI here
 
-## Usage
+User can hide their credentials pressing the hide eye icon.
+!add hide credentials here
 
-This app was built to manage T-sql credentials inside of your Windows Credential Manager.
-![image](https://github.com/user-attachments/assets/9fe296c3-d5c3-47fe-829b-0adb5585990f)
+Once user has entered credentials, the enter SErver.domain.com:port Entry and Update All Credentials button will become available
+!add server entry available here
 
-It utilizes the cmdkey commands. Nothing special.
+When adding a server, make sure to use the format listed in the Entry. If not, the server will not be managed by the app.
+!add server entry error here
 
-When you enter a username and password, the Entry for your server.domain.com:port and Update All Server Credentials button becomes available.
-You may enter a new server at this time and it will be added to your Windows Credential Manager. 
-It will also add to the Domains Picker below "Select Domain".
+User can choose to manage all domains at once
+!add all domains picker 
 
-Pick the domains you wish to manage, or choose ###-ALL-### to update all of your servers.
-A confirmation is given before it will update:
-.insert image here
+Or specific domains
+!add selected domain here
 
+When selecing a server in the Domain list, user has the option to remove it
+!add remove server here
+
+If all servers within a domain are removed, that domain is removed and the Picker is defaulted to ###-ALL-###.
+## DOES NOT
+Does not validate the entered credentials against any systems. 
+It is assumed that the user knows the correct credentials to enter for any domain or domains they are managing.
+
+Although written in Maui, it is not targeting any platform outside of Windows.
 
 ## Getting Started
 
 ### Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [Visual Studio 2022](https://visualstudio.microsoft.com/vs/) with .NET MAUI workload installed
 - Windows 10 or later (x64)
 
