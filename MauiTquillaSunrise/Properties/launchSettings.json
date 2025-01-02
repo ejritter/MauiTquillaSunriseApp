@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MauiTquillaSunrise": {
+      "commandName": "Project",
+      "dotnetRunMessages": true
+    }
+  }
+}

@@ -9,11 +9,12 @@ public partial class App : Application
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
-
-        Window window = base.CreateWindow(activationState);
-        window.Page = new AppShell();
-        window.Width = 600;
-        window.Title = "Maui T-Quilla Sunrise";
+        var window = new Window
+        {
+            Page = new AppShell(),
+            Width = 600,
+            Title = "Maui T-Quilla Sunrise"
+        };
         return window;
     }
 
