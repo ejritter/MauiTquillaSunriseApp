@@ -7,7 +7,7 @@
              xmlns:model="clr-namespace:MauiTquillaSunrise.Model"
              x:Class="MauiTquillaSunrise.View.GetConfirmationPopup"
              x:DataType="viewmodel:GetConfirmationPopupViewModel"
-             CanBeDismissedByTappingOutsideOfPopup="False"
+             CanBeDismissedByTappingOutsideOfPopup="{Binding viewmodel.IsDismissable}"
             Color="White"
              >
     <VerticalStackLayout Spacing="10" 

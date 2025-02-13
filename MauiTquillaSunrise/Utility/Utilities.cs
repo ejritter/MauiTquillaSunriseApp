@@ -2,76 +2,87 @@
 public static class Utilities
 {
     private static Random random = new();
-    private const string _invalidFormat = "Server is not in a valid format and cannot be managed.";
+    private const string _invalidFormat = @"Server cannot be managed. Please make sure server is formatted as 'ServerName.DomainName.TopLevelDomain.Port'";
+    private const string _partialBlankServerName = @"Part of the full server name returned blank.. Could not be parsed.";
     public static string FormatAddCmdKey(string server, string username, string password)
     {
         string output;
         return output = $@"cmdkey /add:{server} /user:{username} /pass:{password}";
     }
 
-
-    public static (string serverName, string fullDomainName, string port, string errorMessage) GetFullServerName(this string server)
+     public static (string serverName, string fullDomainName, string port) GetFullServerName(this ServerModel server)
     {
-        StringBuilder errorMessage = new();
         string serverName = "";
+        string domainName = "";
         string fullDomainName = "";
         string topLevelDomain = "";
         string port = "";
+
         try
         {
-            if (server.IndexOf(":") < server.IndexOf("."))
-            {
-                throw new InvalidDataException(_invalidFormat);
-            }
-            serverName = server.Split('.')[0].ToString();
-            fullDomainName = server.Split('.')[1].ToString();
-            topLevelDomain = server.Split('.')[2].ToString();
-            port = server.Split(':')[1].ToString();
-            topLevelDomain = topLevelDomain.Replace($":{port}", null);
-            fullDomainName = $"{fullDomainName}.{topLevelDomain}";
+            serverName = server.ServerName.ToString() ?? "";
+            domainName = server.DomainName.Split('.')[0] ?? "";
+            topLevelDomain = server.DomainName.Split('.')[1] ?? "";
+            port = server.Port.ToString() ?? "";
+
+            fullDomainName = $"{domainName}.{topLevelDomain}";
             
-            if(serverName.Length + fullDomainName.Length + topLevelDomain.Length + port.Length == 0)
+            if(serverName == "" || domainName == "" || topLevelDomain == "" ||
+                port == "")
             {
-                throw new InvalidDataException(_invalidFormat);
+                throw new InvalidDataException(_partialBlankServerName);
             }
         }
         catch (Exception ex)
         {
-            errorMessage.AppendLine("Error parsing server name.");
-            errorMessage.AppendLine($"Error: {ex.Message}");
+            throw new InvalidDataException($"{_invalidFormat}. Exception thrown: {ex.Message}");
         }
-        return (serverName, fullDomainName, port, errorMessage.ToString());
+        return (serverName, fullDomainName, port);
     }
-    public static (string serverName, string fullDomainName, string port) GetFullServerNameOriginal(this string server)
+    
+    public static ServerModel CreateServerModel(this (string serverName, string fullDomainName, string port) fullServerName)
     {
+            var output = new ServerModel()
+            {
+                ServerName = fullServerName.serverName,
+                DomainName = fullServerName.fullDomainName,
+                Port = fullServerName.port
+            };
+
+        return output;
+    }
+
+    public static (string serverName, string fullDomainName, string port) GetFullServerName(this string server)
+    {
+        StringBuilder errorMessage = new();
         string serverName = "";
+        string domainName = "";
         string fullDomainName = "";
         string topLevelDomain = "";
         string port = "";
+        
         try
         {
-            serverName = server.Split('.')[0].ToString();
-            fullDomainName = server.Split('.')[1].ToString();
-            topLevelDomain = server.Split('.')[2].ToString();
-            port = server.Split(':')[1].ToString();
-            topLevelDomain = topLevelDomain.Replace($":{port}", null);
-            fullDomainName = $"{fullDomainName}.{topLevelDomain}";
-
-            if (string.IsNullOrEmpty(serverName) ||
-                string.IsNullOrEmpty(fullDomainName) ||
-                string.IsNullOrEmpty(topLevelDomain) ||
-                string.IsNullOrEmpty(port))
+            if (server.IndexOf(":") < server.IndexOf("."))
             {
-                throw new InvalidDataException("Server is not in a valid format and cannot be managed.");
+                throw new InvalidDataException(@": cannot come before .");
             }
-
+            serverName = server.Split('.')[0].ToString() ?? "";
+            domainName = server.Split('.')[1].ToString() ?? "";
+            topLevelDomain = server.Split('.')[2].ToString() ?? "";
+            port = server.Split(':')[1].ToString() ?? "";
+            topLevelDomain = topLevelDomain.Replace($":{port}", null) ?? "";
+            fullDomainName = $"{domainName}.{topLevelDomain}" ?? "";
+            
+            if(serverName == "" || domainName == "" || topLevelDomain == "" ||
+                port == "")
+            {
+               throw new InvalidDataException(_partialBlankServerName);
+            }
         }
-        catch (InvalidDataException ex)
+        catch (Exception ex)
         {
-            StringBuilder errorMessage = new();
-            errorMessage.AppendLine("Error parsing server name.");
-            errorMessage.AppendLine($"Error: {ex.Message}");
-            throw new InvalidDataException(errorMessage.ToString());
+            throw new InvalidDataException($"{_invalidFormat}. Exception thrown: {ex.Message}");
         }
         return (serverName, fullDomainName, port);
     }

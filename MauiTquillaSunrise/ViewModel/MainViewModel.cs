@@ -3,24 +3,23 @@ using System.ComponentModel;
 using System.Diagnostics;
 
 namespace MauiTquillaSunrise.ViewModel;
-public partial class MainViewModel : ObservableObject
+public partial class MainViewModel : BaseViewModel
 {
 
-    private static string cmdKeyList = @"cmdkey /list";
-    private static string hide = "Press to hide password.";
-    private static string show = "Press to show password.";
-    private static string eyeIcon = "ic_fluent_eye_24_regular.png";
-    private static string eyeOffIcon = "ic_fluent_eye_off_24_regular.png";
-    private static string addIcon = "ic_fluent_add_24_filled.png";
-    private static string minusIcon = "ic_fluent_subtract_24_regular.png";
-    private static string drinkImage = "drinkicon.png";
-    private static string serverImage = "ic_fluent_server_24_regular.png";
-    private static string emptyDrinkImage = "emptydrinkicon.png";
+    private static string _cmdKeyList = @"cmdkey /list";
+    private static string _hide = "Press to _hide password.";
+    private static string _show = "Press to _show password.";
+    private static string _eyeIcon = "ic_fluent_eye_24_regular.png";
+    private static string _eyeOffIcon = "ic_fluent_eye_off_24_regular.png";
+    private static string _addIcon = "ic_fluent_add_24_filled.png";
+    private static string _minusIcon = "ic_fluent_subtract_24_regular.png";
+    private static string _drinkImage = "drinkicon.png";
+    private static string _serverImage = "ic_fluent_server_24_regular.png";
+    private static string _emptyDrinkImage = "emptydrinkicon.png";
     private const string _allDomain = "###-ALL-###";
     private const string _infoTag = "!***INFO***!";
     private const string _infoFormat = "Make sure servers are in a [servername].[domainname].[topleveldomain]:[port] format";
 
-    private Page _currentPage;
     private List<ServerModel> _serversSelected = new();
     private List<ServerModel> _allServers = new();
 
@@ -34,31 +33,31 @@ public partial class MainViewModel : ObservableObject
     private Dictionary<DomainModel, List<ServerModel>> domainDictionary = new();
 
     [ObservableProperty]
-    string emptyDrinkIcon = emptyDrinkImage;
+    string emptyDrinkIcon = _emptyDrinkImage;
 
     [ObservableProperty]
-    string serverIcon = serverImage;
+    string serverIcon = _serverImage;
 
     [ObservableProperty]
-    string drinkIcon = drinkImage;
+    string drinkIcon = _drinkImage;
 
     [ObservableProperty]
     string title = string.Empty;
 
     [ObservableProperty]
-    string removeServerIcon = minusIcon;
+    string removeServerIcon = _minusIcon;
 
     [ObservableProperty]
-    string revealPasswordButtonText = show;
+    string revealPasswordButtonText = _show;
 
     [ObservableProperty]
-    string revealPasswordButtonIcon = eyeOffIcon;
+    string revealPasswordButtonIcon = _eyeOffIcon;
 
     [ObservableProperty]
-    string revealUsernameButtonText = show;
+    string revealUsernameButtonText = _show;
 
     [ObservableProperty]
-    string revealUsernameButtonIcon = eyeOffIcon;
+    string revealUsernameButtonIcon = _eyeOffIcon;
 
     [ObservableProperty]
     ObservableCollection<ServerModel> servers = new();
@@ -88,13 +87,15 @@ public partial class MainViewModel : ObservableObject
     bool isUsernameShowing = false;
 
     [ObservableProperty]
-    string addButton = addIcon;
+    string addButton = _addIcon;
 
     [ObservableProperty]
     bool isServerSelected = false;
 
     [ObservableProperty]
     int serverCount = 0;
+
+    ObservableCollection<ServerModel> _invalidServers = new();
     public MainViewModel()
     {
         IsEnabled = Utilities.IsUserInitialized(User);
@@ -122,30 +123,16 @@ public partial class MainViewModel : ObservableObject
         PickerChanged_Event(picker, EventArgs.Empty);
     }
 
-
-    private void AddServers(string server)
+    private void AddServers(ServerModel server)
     {
-        if (string.IsNullOrEmpty(server))
+        if (server is null)
         {
             return;
         }
-
         else
         {
-            (string serverName, string domainName, string port, string errorMessage) = server.GetFullServerName();
-            if(errorMessage.Length > 0)
-            {
-                throw new InvalidDataException(errorMessage);
-            }
-            _newServer = new ServerModel()
-            {
-                ServerName = serverName,
-                DomainName = domainName,
-                Port = port
-            };
-
             ServerModel? found = _allServers.
-                                   FirstOrDefault(s => $"{s.ServerName}.{s.DomainName}" == $"{_newServer.ServerName}.{_newServer.DomainName}");
+                                   FirstOrDefault(s => $"{s.ServerName}.{s.DomainName}" == $"{server.ServerName}.{server.DomainName}");
             switch (found)
             {
                 case null:
@@ -177,41 +164,36 @@ public partial class MainViewModel : ObservableObject
 
         else
         {
-            (string serverName, string domainName, string port, string errorMessage) = server.GetFullServerName();
-            if (errorMessage.Length > 0)
+            try
             {
-                errorMessage = $"{errorMessage}\n{_infoTag}\n{_infoFormat}";
-                DisplayAlert("Warning!", errorMessage, true);
-                return;
-            }
-            //successfull.
-            _newServer = new ServerModel()
-            {
-                ServerName = serverName,
-                DomainName = domainName,
-                Port = port
-            };
+                _newServer = null;
+                _newServer = server.GetFullServerName().CreateServerModel();
+                ServerModel? found = _allServers.
+                                       FirstOrDefault(s => $"{s.ServerName}.{s.DomainName}" == $"{_newServer.ServerName}.{_newServer.DomainName}");
+                switch (found)
+                {
+                    case null:
+                        _allServers.Add(_newServer);
+                        LoadDomains();
+                        SetPickerDefault(_newServer.DomainName);
+                        break;
+                    default:
+                        _allServers.Remove(found);
+                        _allServers.Add(_newServer);
+                        break;
+                }
 
-            ServerModel? found = _allServers.
-                                   FirstOrDefault(s => $"{s.ServerName}.{s.DomainName}" == $"{_newServer.ServerName}.{_newServer.DomainName}");
-            switch (found)
-            {
-                case null:
-                    _allServers.Add(_newServer);
-                    LoadDomains();
-                    SetPickerDefault(_newServer.DomainName);
-                    break;
-                default:
-                    _allServers.Remove(found);
-                    _allServers.Add(_newServer);
-                    break;
+                if (Utilities.IsUserInitialized(User) == true)
+                {
+                    UpdateCredentials(ServerText);
+                }
+                _newServer = null;
+                ServerText = string.Empty;
             }
-
-            if (Utilities.IsUserInitialized(User) == true)
+            catch (Exception ex)
             {
-                UpdateCredentials(ServerText);
+                GeneralPopupService.GeneralAlertPopup("Error!", $"Cannot add server {server}. Error: {ex}", false);
             }
-            ServerText = string.Empty;
         }
     }
     private void LoadDomains()
@@ -223,10 +205,6 @@ public partial class MainViewModel : ObservableObject
 
         foreach (ServerModel server in _allServers)
         {
-            //string[] serverArray = _server.ServerName.Split('.');
-            ////0 _server
-            ////1 domainName
-            ////2 topleveldomain (com, org etc)
             var found = domainDictionary.FirstOrDefault(domains => domains.Key.DomainName == server.DomainName)
                                         .Key;
 
@@ -246,7 +224,7 @@ public partial class MainViewModel : ObservableObject
         var sorted = Domains.SortCollection();
         if (sorted.success == false)
         {
-            DisplayAlert("Warning!", $"Could not sort domains: {sorted.message}", true);
+            GeneralPopupService.GeneralAlertPopup("Warning!", $"Could not sort domains: {sorted.message}", true);
         }
     }
 
@@ -268,7 +246,7 @@ public partial class MainViewModel : ObservableObject
             if (string.IsNullOrEmpty(serverText))
             {
                 _message.AppendLine($"Update servers for selected domain: {SelectedDomain.DomainName}?");
-                var confirm = await GetUserConfirmationPopup(_title, _message.ToString(), Servers.ToList());
+                var confirm = await GeneralPopupService.GetUserConfirmationPopup(_title, _message.ToString(), Servers.ToList());
                 if (confirm)
                 {
                     _message.Clear();
@@ -324,19 +302,17 @@ public partial class MainViewModel : ObservableObject
         }
         finally
         {
-
             isBusy = false;
             if (_errors == false)
             {
                 _message.AppendLine("Done.");
             }
-            DisplayAlert(_title, _message.ToString(), false);
+            GeneralPopupService.GeneralAlertPopup(_title, _message.ToString(), false);
         }
     }
 
     public void PageLoaded()
     {
-        _currentPage = (Page)Application.Current.MainPage;
         // LoadDummyServers();
         LoadServers();
         LoadDomains();
@@ -362,7 +338,7 @@ public partial class MainViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            var _ = await GetUserConfirmationPopup("Error removing server", $"{server.ServerName} could not be removed: {ex.Message}");
+            var _ = await GeneralPopupService.GetUserConfirmationPopup("Error removing server", $"{server.ServerName} could not be removed: {ex.Message}");
         }
         finally
         {
@@ -408,7 +384,7 @@ public partial class MainViewModel : ObservableObject
             message.Append($"Managing: {SelectedDomain.DomainName} ");
             message.AppendLine($"Server Count: {_serversSelected.ToList().Count} ");
 
-            var response = await GetUserConfirmationPopup(title, message.ToString(), _serversSelected.ToList());
+            var response = await GeneralPopupService.GetUserConfirmationPopup(title, message.ToString(), _serversSelected.ToList());
             if (response)
             {
                 foreach (ServerModel server in _serversSelected.ToList())
@@ -426,7 +402,7 @@ public partial class MainViewModel : ObservableObject
                 {
                     message.AppendLine("Done.");
                 }
-                DisplayAlert(title, message.ToString(), false);
+                GeneralPopupService.GeneralAlertPopup(title, message.ToString(), false);
             }
         }
         finally
@@ -476,65 +452,8 @@ public partial class MainViewModel : ObservableObject
     public void RevealPassword()
     {
         IsPasswordShowing = !IsPasswordShowing;
-        RevealPasswordButtonIcon = RevealPasswordButtonIcon == eyeOffIcon ? eyeIcon : eyeOffIcon;
+        RevealPasswordButtonIcon = RevealPasswordButtonIcon == _eyeOffIcon ? _eyeIcon : _eyeOffIcon;
     }
-
-
-
-    private void DisplayAlert(string title, string message, bool isDismissable)
-    {
-        if (Shell.Current?.CurrentPage != null)
-        {
-            var generalAlertPage = new GeneralAlertPopupView(new GeneralAlertPopupViewModel(title, message, isDismissable));
-            Shell.Current.CurrentPage.ShowPopup(generalAlertPage);
-        }
-    }
-
-    private async Task<bool> GetUserConfirmationPopup(string title, List<ServerModel> servers)
-    {
-        var confirmationPage = new GetConfirmationPopup(new GetConfirmationPopupViewModel(title, servers));
-        var response = await Shell.Current.CurrentPage.ShowPopupAsync(confirmationPage);
-
-        if (response is bool foundResponse)
-        {
-            return foundResponse;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    private async Task<bool> GetUserConfirmationPopup(string title, string message)
-    {
-        var confirmationPage = new GetConfirmationPopup(new GetConfirmationPopupViewModel(title, message));
-        var response = await Shell.Current.CurrentPage.ShowPopupAsync(confirmationPage);
-
-        if (response is bool foundResponse)
-        {
-            return foundResponse;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    private async Task<bool> GetUserConfirmationPopup(string title, string message, List<ServerModel> servers)
-    {
-        var confirmationPage = new GetConfirmationPopup(new GetConfirmationPopupViewModel(title, message, servers));
-        var response = await Shell.Current.CurrentPage.ShowPopupAsync(confirmationPage);
-
-        if (response is bool foundResponse)
-        {
-            return foundResponse;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
     private static string CmdCommand(string command)
     {
         Process cmd = new Process();
@@ -564,11 +483,12 @@ public partial class MainViewModel : ObservableObject
     private void LoadServers()
     {
 
-        StringBuilder _errors = new();
-        string _currentLine = string.Empty;
+        StringBuilder errors = new();
+        string currentLine = string.Empty;
+        string serverName = string.Empty;
         try
         {
-            var results = CmdCommand(cmdKeyList);
+            var results = CmdCommand(_cmdKeyList);
             results = results.TrimStart().Trim().TrimEnd();
             foreach (string line in results.Trim().Split("\n"))
             {
@@ -576,58 +496,60 @@ public partial class MainViewModel : ObservableObject
                 {
                     if (line.Contains("Domain:target="))
                     {
-                        _currentLine = line.Trim().TrimStart().TrimEnd();
-                        int startIndex = _currentLine.IndexOf('=') + 1;
-                        int endIndex = _currentLine.Length - startIndex;
-                        string serverName = _currentLine.Substring(startIndex, endIndex);
-                        AddServers(serverName);
+                        _newServer = null;
+                        currentLine = line.Trim().TrimStart().TrimEnd();
+                        int startIndex = currentLine.IndexOf('=') + 1;
+                        int endIndex = currentLine.Length - startIndex;
+                        
+                        serverName = currentLine.Substring(startIndex, endIndex);
+
+                        _newServer = serverName.GetFullServerName().CreateServerModel();
+
+                        AddServers(_newServer);
                     }
                 }
-                catch
+                catch (Exception)
                 {
-                    if (string.IsNullOrEmpty(_errors.ToString()) == false)
-                    {
-                        _errors.AppendLine();
-                    }
-                    _errors.AppendLine($"{_currentLine}");
+                    _invalidServers.Add(new ServerModel { ServerName = serverName });
+                    _newServer = null;
                     continue;
                 }
             }
-            if (string.IsNullOrEmpty(_errors.ToString()) == false)
+
+            if (_invalidServers.Count > 0)
             {
-                //todo make this look better
-                _errors.AppendLine(_infoTag);
-                _errors.AppendLine(_infoFormat);
+                errors.AppendLine($"Cannot manage the following servers:");
+                GeneralPopupService.GeneralAlertPopup(title:"Errors!", message:errors.ToString(), invalidServers:_invalidServers, isDismissable:false);
             }
         }
         catch (Exception ex)
         {
-            _errors.Insert(0, $"General error: {ex.Message}");
-            _errors.AppendLine(ex.Message);
+            errors.AppendLine($"General error: {ex.Message}");
+            GeneralPopupService.GeneralAlertPopup(title: "Erorrs!", message: errors.ToString(), isDismissable:false);
         }
-        finally
-        {
-            if (string.IsNullOrEmpty(_errors.ToString()) == false)
-            {
-                _errors.Insert(0, $"Cannot manage the following\n");
-                DisplayAlert("Errors", _errors.ToString(), false);
-            }
-        }
+        //finally
+        //{
+        //    if (_invalidServers.Count > 0)
+        //    {
+        //        errors.Insert(0, $"Cannot manage the following\n");
+        //        GeneralPopupService.GeneralAlertPopup(title:"Errors!", message:errors.ToString(), invalidServers:_invalidServers, isDismissable:false);
+        //    }
+        //}
     }
 
     [RelayCommand]
     public void RevealUsername()
     {
         IsUsernameShowing = !IsUsernameShowing;
-        RevealUsernameButtonIcon = RevealUsernameButtonIcon == eyeOffIcon ? eyeIcon : eyeOffIcon;
+        RevealUsernameButtonIcon = RevealUsernameButtonIcon == _eyeOffIcon ? _eyeIcon : _eyeOffIcon;
     }
     [RelayCommand]
     public void AddUsername(string userName)
     {
         if (string.IsNullOrEmpty(userName))
         {
-            DisplayAlert("Adding Username", "Please provide username.", true);
-            UserNameText = User.UserName;
+            GeneralPopupService.GeneralAlertPopup("Adding Username", "Please provide username.", true);
+            UserNameText = User.UserName ?? string.Empty;
             return;
         }
         else
@@ -642,8 +564,8 @@ public partial class MainViewModel : ObservableObject
     {
         if (string.IsNullOrEmpty(password))
         {
-            DisplayAlert("Adding Password", "Please provide password.", true);
-            PasswordText = User.Password;
+            GeneralPopupService.GeneralAlertPopup("Adding Password", "Please provide password.", true);
+            PasswordText = User.Password ?? string.Empty;
             return;
         }
         else
@@ -668,7 +590,7 @@ public partial class MainViewModel : ObservableObject
             var sorted = Servers.SortCollection();
             if (sorted.success == false)
             {
-                DisplayAlert("Warning!", $"Could not sort servers: {sorted.message}", true);
+                GeneralPopupService.GeneralAlertPopup("Warning!", $"Could not sort servers: {sorted.message}", true);
             }
         }
     }

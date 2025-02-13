@@ -1,4 +1,6 @@
-﻿namespace MauiTquillaSunrise;
+﻿using CommunityToolkit.Maui.Markup;
+
+namespace MauiTquillaSunrise;
 public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
@@ -7,6 +9,7 @@ public static class MauiProgram
         builder
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
+            .UseMauiCommunityToolkitMarkup()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -16,9 +19,20 @@ public static class MauiProgram
 #if DEBUG
 		builder.Logging.AddDebug();
 #endif
-        builder.Services.AddSingleton<MainView>();
-        builder.Services.AddSingleton<MainViewModel>();
+        builder.Services.AddSingleton<IGeneralPopupService, GeneralPopupService>();
 
+        builder.Services.AddSingleton<AppShell>();
+        builder.Services.AddSingleton<App>();
+
+        builder.Services.AddSingleton<MainViewModel>();
+        builder.Services.AddSingleton<MainPage>();
+
+        builder.Services.AddTransient<GeneralAlertPopupViewModel>();
+        builder.Services.AddTransient<GeneralAlertPopupPage>();
+
+        builder.Services.AddTransient<GetConfirmationPopupViewModel>();
+        builder.Services.AddTransient<GetConfirmationPopupPage>();
+        
         return builder.Build();
     }
 }

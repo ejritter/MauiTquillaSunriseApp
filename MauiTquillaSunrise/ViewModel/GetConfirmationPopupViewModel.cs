@@ -1,7 +1,7 @@
 ﻿using Windows.Networking.Sockets;
 
 namespace MauiTquillaSunrise.ViewModel;
-public partial class GetConfirmationPopupViewModel : ObservableObject
+public partial class GetConfirmationPopupViewModel : BaseViewModel
 {
     [ObservableProperty]
     string title;
@@ -11,6 +11,9 @@ public partial class GetConfirmationPopupViewModel : ObservableObject
 
     [ObservableProperty]
     string message;
+
+    [ObservableProperty]
+    bool isDismissable = false;
 
     public GetConfirmationPopupViewModel(string title, List<ServerModel> servers)
     {
@@ -31,5 +34,34 @@ public partial class GetConfirmationPopupViewModel : ObservableObject
         Servers = servers;
     }
 
+
+    [RelayCommand]
+    public async void OkayClicked(object sender)
+    {
+        if (sender is null)
+        {
+            return;
+        }
+
+        if (sender is Button button)
+        {
+           
+        }
+
+    }
+
+    [RelayCommand]
+    public async void CancelClicked(object sender)
+    {
+        if (sender is null)
+        {
+            return;
+        }
+
+        if (sender is Popup popup)
+        {
+            popup.Close();
+        }
+    }
 
 }

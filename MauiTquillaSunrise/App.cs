@@ -1,21 +1,25 @@
 ﻿
+
+
+
 namespace MauiTquillaSunrise;
-public partial class App : Application
+
+public class App : Application
 {
-    public App()
+    private readonly Shell _shell;
+    public App(AppShell shell)
     {
-        InitializeComponent();
+        _shell = shell;
     }
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        var window = new Window
+        var window = new Window(_shell)
         {
-            Page = new AppShell(),
-            Width = 600,
+            Width = 800,
+            Height = 1000,
             Title = "Maui T-Quilla Sunrise"
         };
         return window;
     }
-
 }
