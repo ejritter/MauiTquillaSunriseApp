@@ -1,11 +1,8 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
-
-namespace MauiTquillaSunrise.ViewModel;
+﻿namespace MauiTquillaSunrise.ViewModel;
 public partial class MainViewModel : BaseViewModel
 {
-
+    private readonly IPopupService _popupService;
+    private bool _confirmOrCancel = false;
     private static string _cmdKeyList = @"cmdkey /list";
     private static string _hide = "Press to _hide password.";
     private static string _show = "Press to _show password.";
@@ -27,77 +24,78 @@ public partial class MainViewModel : BaseViewModel
 
 
     [ObservableProperty]
-    DomainModel selectedDomain;
+    private DomainModel selectedDomain;
 
     private bool isBusy = false;
     private Dictionary<DomainModel, List<ServerModel>> domainDictionary = new();
 
     [ObservableProperty]
-    string emptyDrinkIcon = _emptyDrinkImage;
+    private string emptyDrinkIcon = _emptyDrinkImage;
 
     [ObservableProperty]
-    string serverIcon = _serverImage;
+    private string serverIcon = _serverImage;
 
     [ObservableProperty]
-    string drinkIcon = _drinkImage;
+    private string drinkIcon = _drinkImage;
 
     [ObservableProperty]
-    string title = string.Empty;
+    private string title = string.Empty;
 
     [ObservableProperty]
-    string removeServerIcon = _minusIcon;
+    private string removeServerIcon = _minusIcon;
 
     [ObservableProperty]
-    string revealPasswordButtonText = _show;
+    private string revealPasswordButtonText = _show;
 
     [ObservableProperty]
-    string revealPasswordButtonIcon = _eyeOffIcon;
+    private string revealPasswordButtonIcon = _eyeOffIcon;
 
     [ObservableProperty]
-    string revealUsernameButtonText = _show;
+    private string revealUsernameButtonText = _show;
 
     [ObservableProperty]
-    string revealUsernameButtonIcon = _eyeOffIcon;
+    private string revealUsernameButtonIcon = _eyeOffIcon;
 
     [ObservableProperty]
-    ObservableCollection<ServerModel> servers = new();
+    private ObservableCollection<ServerModel> servers = new();
 
     [ObservableProperty]
-    ObservableCollection<DomainModel> domains = new();
+    private ObservableCollection<DomainModel> domains = new();
 
     [ObservableProperty]
-    UserModel user = new();
+    private UserModel user = new();
 
     [ObservableProperty]
-    string userNameText = string.Empty;
+    private string userNameText = string.Empty;
 
     [ObservableProperty]
-    string passwordText = string.Empty;
+    private string passwordText = string.Empty;
 
     [ObservableProperty]
-    string serverText = string.Empty;
+    private string serverText = string.Empty;
 
     [ObservableProperty]
-    bool isEnabled;
+    private bool isEnabled;
 
     [ObservableProperty]
-    bool isPasswordShowing = false;
+    private bool isPasswordShowing = false;
 
     [ObservableProperty]
-    bool isUsernameShowing = false;
+    private bool isUsernameShowing = false;
 
     [ObservableProperty]
-    string addButton = _addIcon;
+    private string addButton = _addIcon;
 
     [ObservableProperty]
-    bool isServerSelected = false;
+    private bool isServerSelected = false;
 
     [ObservableProperty]
-    int serverCount = 0;
+    private int serverCount = 0;
 
-    ObservableCollection<ServerModel> _invalidServers = new();
-    public MainViewModel()
+    private ObservableCollection<ServerModel> _invalidServers = new();
+    public MainViewModel(IPopupService popupService)
     {
+        _popupService = popupService;
         IsEnabled = Utilities.IsUserInitialized(User);
     }
 
@@ -192,7 +190,7 @@ public partial class MainViewModel : BaseViewModel
             }
             catch (Exception ex)
             {
-                GeneralPopupService.GeneralAlertPopup("Error!", $"Cannot add server {server}. Error: {ex}", false);
+                ShowPopupAsync(title:"Error!", message:$"Cannot add server {server}. Error: {ex}", servers:null, isDismissable:false);
             }
         }
     }
@@ -224,16 +222,16 @@ public partial class MainViewModel : BaseViewModel
         var sorted = Domains.SortCollection();
         if (sorted.success == false)
         {
-            GeneralPopupService.GeneralAlertPopup("Warning!", $"Could not sort domains: {sorted.message}", true);
+            ShowPopupAsync(title:title, message:$"Could not sort domains: {sorted.message}", servers:null, isDismissable:true);
         }
     }
 
     [RelayCommand]
     public async void UpdateCredentials(string? serverText)
     {
-        StringBuilder _message = new();
-        string _title = "Updating Credentials";
-        bool _errors = false;
+        StringBuilder message = new();
+        string title = "Updating Credentials";
+        bool errors = false;
 
         if (isBusy)
         {
@@ -245,11 +243,13 @@ public partial class MainViewModel : BaseViewModel
         {
             if (string.IsNullOrEmpty(serverText))
             {
-                _message.AppendLine($"Update servers for selected domain: {SelectedDomain.DomainName}?");
-                var confirm = await GeneralPopupService.GetUserConfirmationPopup(_title, _message.ToString(), Servers.ToList());
-                if (confirm)
+                message.AppendLine($"Update servers for selected domain: {SelectedDomain.DomainName}?");
+                //var confirm = await GeneralPopupService.GetUserConfirmationPopup(title, message.ToString(), Servers.ToList());
+                ShowPopupAsync(title:title, message:message.ToString(), servers:Servers, isDismissable:false);
+                //user selected okay
+                if (_confirmOrCancel)
                 {
-                    _message.Clear();
+                    message.Clear();
                     try
                     {
                         foreach (ServerModel _server in Servers)
@@ -265,16 +265,16 @@ public partial class MainViewModel : BaseViewModel
                     catch (Exception ex)
                     {
                         //error found/thrown manually trying to do reach loop
-                        _errors = true;
-                        _title = "Error";
-                        _message.AppendLine($"{ex.Message}");
+                        errors = true;
+                        title = "Error";
+                        message.AppendLine($"{ex.Message}");
                     }
                 }
                 else
                 {
                     //user cancelled
-                    _message.Clear();
-                    _message.AppendLine("Update cancelled.");
+                    message.Clear();
+                    message.AppendLine("Update cancelled.");
                 }
             }
             else
@@ -292,9 +292,9 @@ public partial class MainViewModel : BaseViewModel
                 catch (Exception ex)
                 {
 
-                    _errors = true;
-                    _title = "Error";
-                    _message.AppendLine($"{ex.Message}");
+                    errors = true;
+                    title = "Error";
+                    message.AppendLine($"{ex.Message}");
                     RemoveServer(_newServer);
                 }
 
@@ -303,11 +303,11 @@ public partial class MainViewModel : BaseViewModel
         finally
         {
             isBusy = false;
-            if (_errors == false)
+            if (errors == false)
             {
-                _message.AppendLine("Done.");
+                message.AppendLine("Done.");
             }
-            GeneralPopupService.GeneralAlertPopup(_title, _message.ToString(), false);
+            //GeneralPopupService.GeneralAlertPopup(title, message.ToString(), false);
         }
     }
 
@@ -321,6 +321,15 @@ public partial class MainViewModel : BaseViewModel
     }
 
 
+    [RelayCommand]
+    public void PageLoaded2()
+    {
+        // LoadDummyServers();
+        LoadServers();
+        LoadDomains();
+        SetPickerDefault();
+        Servers.CollectionChanged += ServerCollection_Changed;
+    }
     private async void RemoveServer(ServerModel server)
     {
         if (isBusy)
@@ -338,7 +347,7 @@ public partial class MainViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            var _ = await GeneralPopupService.GetUserConfirmationPopup("Error removing server", $"{server.ServerName} could not be removed: {ex.Message}");
+            ShowPopupAsync(title:"Error removing server", message:$"{server.ServerName} could not be removed: {ex.Message}", servers:null, isDismissable:false);
         }
         finally
         {
@@ -362,10 +371,6 @@ public partial class MainViewModel : BaseViewModel
             LoadDomains();
             SetPickerDefault();
         }
-        //else
-        //{
-        //    SetPickerDefault(server.DomainName);
-        //}
     }
 
     [RelayCommand]
@@ -384,8 +389,8 @@ public partial class MainViewModel : BaseViewModel
             message.Append($"Managing: {SelectedDomain.DomainName} ");
             message.AppendLine($"Server Count: {_serversSelected.ToList().Count} ");
 
-            var response = await GeneralPopupService.GetUserConfirmationPopup(title, message.ToString(), _serversSelected.ToList());
-            if (response)
+            ShowPopupAsync(title:title, message:message.ToString(), servers:_serversSelected.ToObservableCollection<ServerModel>(), isDismissable:false);
+            if (_confirmOrCancel)
             {
                 foreach (ServerModel server in _serversSelected.ToList())
                 {
@@ -402,7 +407,7 @@ public partial class MainViewModel : BaseViewModel
                 {
                     message.AppendLine("Done.");
                 }
-                GeneralPopupService.GeneralAlertPopup(title, message.ToString(), false);
+                ShowPopupAsync(title:title, message:message.ToString(), servers:null, isDismissable:false);
             }
         }
         finally
@@ -480,7 +485,7 @@ public partial class MainViewModel : BaseViewModel
     }
 
 
-    private void LoadServers()
+    private  void LoadServers()
     {
 
         StringBuilder errors = new();
@@ -500,7 +505,7 @@ public partial class MainViewModel : BaseViewModel
                         currentLine = line.Trim().TrimStart().TrimEnd();
                         int startIndex = currentLine.IndexOf('=') + 1;
                         int endIndex = currentLine.Length - startIndex;
-                        
+
                         serverName = currentLine.Substring(startIndex, endIndex);
 
                         _newServer = serverName.GetFullServerName().CreateServerModel();
@@ -515,26 +520,58 @@ public partial class MainViewModel : BaseViewModel
                     continue;
                 }
             }
-
             if (_invalidServers.Count > 0)
             {
                 errors.AppendLine($"Cannot manage the following servers:");
-                GeneralPopupService.GeneralAlertPopup(title:"Errors!", message:errors.ToString(), invalidServers:_invalidServers, isDismissable:false);
+                ShowPopupAsync(title: "Errors!", message: errors.ToString(), servers: _invalidServers, isDismissable: false);
             }
         }
         catch (Exception ex)
         {
             errors.AppendLine($"General error: {ex.Message}");
-            GeneralPopupService.GeneralAlertPopup(title: "Erorrs!", message: errors.ToString(), isDismissable:false);
+            ShowPopup(title: "Errors!", message: errors.ToString(), servers: null, isDismissable: false);
         }
         //finally
         //{
         //    if (_invalidServers.Count > 0)
         //    {
         //        errors.Insert(0, $"Cannot manage the following\n");
-        //        GeneralPopupService.GeneralAlertPopup(title:"Errors!", message:errors.ToString(), invalidServers:_invalidServers, isDismissable:false);
+        //        GeneralPopupService.GeneralAlertPopup(title:"Errors!", message:errors.ToString(), servers:_invalidServers, isDismissable:false);
         //    }
         //}
+    }
+
+
+    private void ShowPopup(string title, string message, ObservableCollection<ServerModel>? servers, bool isDismissable)
+    {
+        _popupService.ShowPopup<GeneralAlertPopupViewModel>(
+           onPresenting: vm =>
+           {
+               vm.Title = title;
+               vm.Message = message;
+               vm.Servers = servers;
+               vm.IsDismissable = isDismissable;
+           });
+    }
+
+    private async void ShowPopupAsync(string title, string message, 
+                                        ObservableCollection<ServerModel>? servers, 
+                                        bool isDismissable)
+    {
+     var _ =  await _popupService.ShowPopupAsync<GeneralAlertPopupViewModel>(
+           onPresenting: vm =>
+           {
+               vm.Title = title;
+               vm.Message = message;
+               vm.Servers = servers;
+               vm.IsDismissable = isDismissable;
+
+               vm.PopupClosed += (sender, result) =>
+               {
+                   _confirmOrCancel = result;
+                   _popupService.ClosePopupAsync();
+               };
+           });
     }
 
     [RelayCommand]
@@ -548,7 +585,7 @@ public partial class MainViewModel : BaseViewModel
     {
         if (string.IsNullOrEmpty(userName))
         {
-            GeneralPopupService.GeneralAlertPopup("Adding Username", "Please provide username.", true);
+            ShowPopup(title:"Adding Username", message:"Please provide a username", servers:null, isDismissable:true);
             UserNameText = User.UserName ?? string.Empty;
             return;
         }
@@ -564,7 +601,7 @@ public partial class MainViewModel : BaseViewModel
     {
         if (string.IsNullOrEmpty(password))
         {
-            GeneralPopupService.GeneralAlertPopup("Adding Password", "Please provide password.", true);
+            ShowPopup(title: "Adding Password", message: "Please provide a password", servers: null, isDismissable: true);
             PasswordText = User.Password ?? string.Empty;
             return;
         }
@@ -590,8 +627,21 @@ public partial class MainViewModel : BaseViewModel
             var sorted = Servers.SortCollection();
             if (sorted.success == false)
             {
-                GeneralPopupService.GeneralAlertPopup("Warning!", $"Could not sort servers: {sorted.message}", true);
+                ShowPopup(title: "Warning!", message: $"Could not sort servers: {sorted.message}", servers: null, isDismissable: true);
             }
         }
+    }
+
+    [RelayCommand]
+    private async Task OkayClicked()
+    {
+        await _popupService.ClosePopupAsync(_confirmOrCancel);
+
+    }
+
+    [RelayCommand]
+    private async void CancelClicked()
+    {
+        await _popupService.ClosePopupAsync(_confirmOrCancel);
     }
 }

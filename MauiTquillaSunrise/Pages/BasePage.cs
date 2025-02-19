@@ -1,8 +1,17 @@
-﻿namespace MauiTquillaSunrise.Pages;
+﻿using CommunityToolkit.Maui.Behaviors;
+
+namespace MauiTquillaSunrise.Pages;
 
 public abstract class BasePage<TViewModel> : ContentPage where TViewModel : BaseViewModel
 {
-    public abstract void Build();
+
+    protected BasePage(TViewModel vm)
+    {
+        BindingContext = vm;
+        Build();
+    }
+
+    protected abstract void Build();
 
     protected override void OnNavigatedTo(NavigatedToEventArgs args)
     {
@@ -12,8 +21,8 @@ public abstract class BasePage<TViewModel> : ContentPage where TViewModel : Base
         HotReloadService.UpdateApplicationEvent += ReloadUI;
 #endif
     }
-
-    protected override void OnNavigatedFrom(NavigatedFromEventArgs args)
+     
+    protected override  void OnNavigatedFrom(NavigatedFromEventArgs args)
     {
         base.OnNavigatedFrom(args);
 #if DEBUG
@@ -29,24 +38,5 @@ public abstract class BasePage<TViewModel> : ContentPage where TViewModel : Base
             Build();
         });
 
-    }
-
-    protected void PageLoaded(object sender, EventArgs e)
-    {
-        if (sender is null)
-        {
-            return;
-        }
-
-        if (BindingContext is MainViewModel vm)
-        {
-            vm.PageLoaded();
-        }
-    }
-    public BasePage(TViewModel vm)
-    {
-        BindingContext = vm;
-        Build();
-        Loaded += PageLoaded;
     }
 }

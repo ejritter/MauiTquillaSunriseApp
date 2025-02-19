@@ -2,31 +2,32 @@
 public partial class GeneralAlertPopupViewModel : BaseViewModel
 {
     [ObservableProperty]
-    string message;
+    private string message = string.Empty;
 
     [ObservableProperty]
-    string title;
+    private string title = string.Empty;
 
     [ObservableProperty]
-    bool isDismissable = true;
+    private bool isDismissable = true;
 
     [ObservableProperty]
-    ObservableCollection<ServerModel> invalidServers = new();
+    private ObservableCollection<ServerModel> servers = new();
 
-
-    public GeneralAlertPopupViewModel(string title, string message, bool isDismissable)
+    public event EventHandler<bool> PopupClosed;
+    public GeneralAlertPopupViewModel()
     {
-        Message = message;
-        Title = title;
-        IsDismissable = isDismissable;
+        
     }
 
-    public GeneralAlertPopupViewModel(string title, string message, ObservableCollection<ServerModel> invalidServers, bool isDismissable)
+    [RelayCommand]
+    private void OkayClicked()
     {
-        Title = title;
-        Message = message;
-        IsDismissable = isDismissable;
-        InvalidServers = invalidServers;
+        PopupClosed.Invoke(this, true);
     }
 
-}
+    [RelayCommand]
+    private void CancelClicked()
+    {
+        PopupClosed.Invoke(this, false);
+    }
+} 

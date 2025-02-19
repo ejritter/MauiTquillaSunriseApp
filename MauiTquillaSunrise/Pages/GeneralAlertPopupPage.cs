@@ -4,7 +4,7 @@ public class GeneralAlertPopupPage : BasePopup<GeneralAlertPopupViewModel>
     public GeneralAlertPopupPage(GeneralAlertPopupViewModel vm) : base(vm)
     {
     }
-    public override void Build()
+    protected override void Build()
     {
         this.Bind(CanBeDismissedByTappingOutsideOfPopupProperty,
                     getter: (GeneralAlertPopupViewModel vm) => vm.IsDismissable);
@@ -23,22 +23,22 @@ public class GeneralAlertPopupPage : BasePopup<GeneralAlertPopupViewModel>
                        .Bind(Label.TextProperty, getter: (GeneralAlertPopupViewModel vm) => vm.Title)
                        .CenterHorizontal(),
 
-                  new CollectionView() {
-                                        ItemsLayout = new GridItemsLayout(2, ItemsLayoutOrientation.Vertical),
+                  new CollectionView() {ItemsLayout = new GridItemsLayout(2, ItemsLayoutOrientation.Vertical),
                                         Header = new Label().Bind(Label.TextProperty, getter:(GeneralAlertPopupViewModel vm) => vm.Message)
-                                                            .Font(bold:true, size:20)
-                                       }
+                                                            .Font(bold:true, size:20)}
                        .ItemTemplate(new ServerModelDataTemplate())
-                       .Bind(CollectionView.ItemsSourceProperty, getter: (GeneralAlertPopupViewModel vm) => vm.InvalidServers)
+                       .Bind(CollectionView.ItemsSourceProperty, getter: (GeneralAlertPopupViewModel vm) => vm.Servers)
                        .Height(300),
 
                   new Button()
                     .Text("OK")
-                    .Invoke(button =>
-                     {
-                         button.Clicked += (sender, e) => base.ClosePopup(sender, e);
-                     })
                     .CenterHorizontal()
+                    .Bind(Button.CommandProperty, getter:(GeneralAlertPopupViewModel vm) => vm.OkayClickedCommand),
+
+                  new Button()
+                    .Text("Cancel")
+                    .CenterHorizontal()
+                    .Bind(Button.CommandProperty, getter:(GeneralAlertPopupViewModel vm) => vm.CancelClickedCommand)
             }
 
 

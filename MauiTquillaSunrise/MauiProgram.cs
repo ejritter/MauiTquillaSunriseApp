@@ -19,19 +19,13 @@ public static class MauiProgram
 #if DEBUG
 		builder.Logging.AddDebug();
 #endif
-        builder.Services.AddSingleton<IGeneralPopupService, GeneralPopupService>();
-
         builder.Services.AddSingleton<AppShell>();
         builder.Services.AddSingleton<App>();
 
         builder.Services.AddSingleton<MainViewModel>();
         builder.Services.AddSingleton<MainPage>();
 
-        builder.Services.AddTransient<GeneralAlertPopupViewModel>();
-        builder.Services.AddTransient<GeneralAlertPopupPage>();
-
-        builder.Services.AddTransient<GetConfirmationPopupViewModel>();
-        builder.Services.AddTransient<GetConfirmationPopupPage>();
+        builder.Services.AddTransientPopup<GeneralAlertPopupPage,GeneralAlertPopupViewModel>();
         
         return builder.Build();
     }

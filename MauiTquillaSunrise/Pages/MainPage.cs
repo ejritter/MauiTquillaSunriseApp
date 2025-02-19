@@ -1,13 +1,21 @@
-﻿namespace MauiTquillaSunrise.Pages;
+﻿using CommunityToolkit.Maui.Behaviors;
+using Windows.ApplicationModel.Activation;
+
+namespace MauiTquillaSunrise.Pages;
 
 public class MainPage : BasePage<MainViewModel>
 {
     public MainPage(MainViewModel vm) : base (vm)
     {
         Title = vm.Title;
+        this.Behaviors(new EventToCommandBehavior
+        {
+            EventName = nameof(this.Loaded),
+            Command = vm.PageLoaded2Command
+        });
     }
 
-    public override void Build()
+    protected override void Build()
     {
         Content = new Grid()
         {
