@@ -14,6 +14,7 @@ global using System.Text;
 
 global using MauiTquillaSunrise;
 global using MauiTquillaSunrise.ViewModel;
+global using MauiTquillaSunrise.Controls;
 global using MauiTquillaSunrise.Model;
 global using MauiTquillaSunrise.View;
 global using MauiTquillaSunrise.Utility;

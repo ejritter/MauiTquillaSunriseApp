@@ -10,7 +10,8 @@ public static class Utilities
         return output = $@"cmdkey /add:{server} /user:{username} /pass:{password}";
     }
 
-     public static (string serverName, string fullDomainName, string port) GetFullServerName(this ServerModel server)
+     public static (string serverName, string domain, string topLevelDomain, string fullDomainName, string port) 
+            GetFullServerName(this ServerModel server)
     {
         string serverName = "";
         string domainName = "";
@@ -37,7 +38,7 @@ public static class Utilities
         {
             throw new InvalidDataException($"{_invalidFormat}. Exception thrown: {ex.Message}");
         }
-        return (serverName, fullDomainName, port);
+        return (serverName, domainName, topLevelDomain, fullDomainName, port);
     }
     
     public static ServerModel CreateServerModel(this (string serverName, string fullDomainName, string port) fullServerName)
@@ -119,55 +120,17 @@ public static class Utilities
     }
 
 
-    public static (bool success, string message) SortCollection<T>(this ObservableCollection<T> collection) where T : new()
+   public static ObservableCollection<T> SortCollectionAsc<T>(this ObservableCollection<T> collection) where T : new()
     {
-        bool outputBool = false;
-        string outputString = "";
-
-        try
+        var list = collection.ToList();
+        list.Sort();
+        collection.Clear();
+        foreach (T t in list)
         {
-            var item = new T();
-            var properties = item.GetType().GetProperties();
-            foreach (var property in properties)
-            {
-                if (property.Name.Contains(nameof(DomainModel.DomainName)) ||
-                    property.Name.Contains(nameof(ServerModel.ServerName)))
-                {
-                    var sortedCollection = collection.OrderBy(c => c.GetType().GetProperty(property.Name).GetValue(c, null)).ToList();
-                    if (item is ServerModel)
-                    {
-                        sortedCollection.Clear();
-                        sortedCollection = collection.OrderBy(c => c.GetType().GetProperty(nameof(DomainModel.DomainName)).GetValue(c, null))
-                                                     .ThenBy(c => c.GetType().GetProperty(nameof(ServerModel.ServerName)).GetValue(c, null))
-                                                     .ToList();
-                    }
-                    collection.Clear();
-
-                    foreach (T sortedItem in sortedCollection)
-                    {
-                        collection.Add(sortedItem);
-                    }
-                }
-                break;
-            }
-
-            if (item is DomainModel)
-            {
-                //enforce our ###-ALL-### to the top 
-                var allDomains = collection.FirstOrDefault(c => c.GetType().GetProperty(nameof(DomainModel.DomainName)).GetValue(c, null).ToString() == "###-ALL-###");
-                collection.Remove(allDomains);
-                collection.Insert(0, allDomains);
-            }
-            outputBool = true;
+            collection.Add(t);
         }
-        catch (Exception ex)
-        {
-            outputBool = false;
-            outputString = ex.Message;
-        }
-        return (outputBool, outputString);
+        return collection;
     }
-
     public static bool IsUserInitialized(UserModel user)
     {
         if ((string.IsNullOrEmpty(user.Password) == false &&

@@ -2,18 +2,18 @@
 using Windows.ApplicationModel.Activation;
 
 namespace MauiTquillaSunrise.Pages;
-
 public class MainPage : BasePage<MainViewModel>
 {
-    public MainPage(MainViewModel vm) : base (vm)
+    public MainPage(MainViewModel vm) : base(vm)
     {
         Title = vm.Title;
-        this.Behaviors(new EventToCommandBehavior
+        this.Behaviors(new EventToCommandBehavior()
         {
             EventName = nameof(this.Loaded),
-            Command = vm.PageLoaded2Command
+            Command = vm.PageLoadedCommand
         });
     }
+
 
     protected override void Build()
     {
@@ -23,15 +23,15 @@ public class MainPage : BasePage<MainViewModel>
             RowDefinitions = Rows.Define(
                (Row.UsernameButton, 50),
                (Row.PasswordButton, 50),
-               (Row.ServerCount, 50),
-               //(Row.SelectIsland, 50),
+               (Row.ServerCount, 20),
                (Row.Picker, 60),
                (Row.ServerCollectionView, Star)),
+            
             //width
             ColumnDefinitions = Columns.Define(
                (Column.EntryLabels, 300),
-               (Column.AddHideRemoveButtons, 60),
-               (Column.ServerAddUpdateButtons, 300),
+               (Column.AddHideButtons, 60),
+               (Column.ServerAddRemoveUpdateButtons, 300),
                (Column.AddButton, 30)),
 
             ColumnSpacing = 8,
@@ -54,7 +54,7 @@ public class MainPage : BasePage<MainViewModel>
                     .Bind(Entry.ReturnCommandProperty, getter:(MainViewModel vm) => vm.AddUsernameCommand),
 
                 new ImageButton()
-                    .Column(Column.AddHideRemoveButtons)
+                    .Column(Column.AddHideButtons)
                     .Row(Row.UsernameButton)
                     .Start()
                     .Width(30)
@@ -64,7 +64,7 @@ public class MainPage : BasePage<MainViewModel>
                     .Bind(ImageButton.CommandProperty, getter:(MainViewModel vm) => vm.AddUsernameCommand),
 
                 new ImageButton()
-                    .Column(Column.AddHideRemoveButtons)
+                    .Column(Column.AddHideButtons)
                     .Row(Row.UsernameButton)
                     .End()
                     .Width(30)
@@ -73,7 +73,7 @@ public class MainPage : BasePage<MainViewModel>
                     .Bind(ImageButton.CommandProperty, getter:(MainViewModel vm) => vm.RevealUsernameCommand),
 
                 new Entry()
-                    .Column(Column.ServerAddUpdateButtons)
+                    .Column(Column.ServerAddRemoveUpdateButtons)
                     .Row(Row.UsernameButton)
                     .Placeholder("Server.Domain.com:Port")
                     .Bind(Entry.TextProperty, mode:BindingMode.TwoWay,
@@ -99,7 +99,6 @@ public class MainPage : BasePage<MainViewModel>
                     .Column(Column.EntryLabels)
                     .Row(Row.PasswordButton)
                     .Placeholder("Password")
-                    .Width(200)
                     .Bind(Entry.TextProperty, mode:BindingMode.TwoWay,
                                               getter:(MainViewModel vm) => vm.PasswordText,
                                               setter:(MainViewModel vm, string? passwordText) => vm.PasswordText = passwordText ?? string.Empty)
@@ -108,7 +107,7 @@ public class MainPage : BasePage<MainViewModel>
                     .Bind(Entry.ReturnCommandProperty, getter:(MainViewModel vm) => vm.AddPasswordCommand),
 
                new ImageButton()
-                    .Column(Column.AddHideRemoveButtons)
+                    .Column(Column.AddHideButtons)
                     .Row(Row.PasswordButton)
                     .Width(30)
                     .Height(30)
@@ -118,7 +117,7 @@ public class MainPage : BasePage<MainViewModel>
                     .Bind(ImageButton.SourceProperty, getter:(MainViewModel vm) => vm.AddButton),
 
                new ImageButton()
-                    .Column(Column.AddHideRemoveButtons)
+                    .Column(Column.AddHideButtons)
                     .Row(Row.PasswordButton)
                     .Width(30)
                     .Height(30)
@@ -127,9 +126,8 @@ public class MainPage : BasePage<MainViewModel>
                     .Bind(ImageButton.SourceProperty, getter:(MainViewModel vm) => vm.RevealPasswordButtonIcon),
 
                new Button()
-                    .Column(Column.ServerAddUpdateButtons)
+                    .Column(Column.ServerAddRemoveUpdateButtons)
                     .Row(Row.PasswordButton)
-                    .Width(200)
                     .Padding(5)
                     .Bind(Button.IsEnabledProperty, getter:(MainViewModel vm) => vm.IsEnabled)
                     .Bind(Button.CommandProperty, getter:(MainViewModel vm) => vm.UpdateCredentialsCommand)
@@ -144,37 +142,49 @@ public class MainPage : BasePage<MainViewModel>
                new Label()
                     .Column(Column.EntryLabels)
                     .Row(Row.ServerCount)
-                    .End()
+                    .CenterHorizontal()
                     .Bind(Label.TextProperty, getter:(MainViewModel vm) => vm.ServerCount),
 
-               new Picker()
-               {
-                   Title = "Select Island",
-                   ItemDisplayBinding = new Binding(nameof(DomainModel.DomainName))
-               }
+
+                 new Picker(){Title ="Select Island:", ItemDisplayBinding = new Binding(nameof(DomainModel.DomainName))}
                     .ColumnSpan(All<Column>())
                     .Row(Row.Picker)
-                    .Bind(Picker.ItemsSourceProperty, getter:(MainViewModel vm) => vm.Domains)
-                    .Bind(Picker.SelectedItemProperty, getter:(MainViewModel vm) => vm.SelectedDomain),
+                    .Center()
+                    .Bottom()
+                    .Fill()
+                    .Bind(Picker.ItemsSourceProperty, mode:BindingMode.OneWay,  getter:(MainViewModel vm) => vm.Domains)
+                    .Bind(Picker.SelectedItemProperty,mode:BindingMode.OneWay,  getter:(MainViewModel vm) => vm.SelectedDomain)
+                    .Invoke(picker =>
+                    {
+                        if (base.BindingContext is MainViewModel vm)
+                        {
+                            picker.SelectedIndexChanged += vm.SetServersToPickerSelectedItem;
+                        }
+                    }),
 
                new CollectionView()
                {
-                   SelectionMode = SelectionMode.Multiple
+                   SelectionMode = SelectionMode.Multiple,
+                   MaximumWidthRequest = 250
                }
                     .Assign(out CollectionView serverCv)
-                    .ColumnSpan(All<Column>())
+                    .ColumnSpan(3)
                     .Row(Row.ServerCollectionView)
                     .EmptyView("Vault currently empty")
+                    .Top()
+                    .Center()
+                    .Fill()
                     .Bind(CollectionView.ItemsSourceProperty, getter:(MainViewModel vm) => vm.Servers)
                     .Bind(CollectionView.SelectionChangedCommandParameterProperty, source:serverCv)
                     .Bind(CollectionView.SelectionChangedCommandProperty, getter:(MainViewModel vm) => vm.ServerSelectedCommand)
                     .ItemTemplate(new ServerModelDataTemplate()),
 
                new ImageButton()
-                    .Column(Column.AddHideRemoveButtons)
+                    .Column(Column.ServerAddRemoveUpdateButtons)
                     .Row(Row.ServerCollectionView)
                     .Width(30)
                     .Height(30)
+                    .Center()
                     .Bind(ImageButton.SourceProperty, getter:(MainViewModel vm) => vm.RemoveServerIcon)
                     .Bind(ImageButton.IsVisibleProperty, getter: (MainViewModel vm) => vm.IsServerSelected)
                     .Bind(ImageButton.CommandProperty, getter: (MainViewModel vm) => vm.RemoveServerCommand)
@@ -183,6 +193,6 @@ public class MainPage : BasePage<MainViewModel>
         };
     }
 
-    private enum Row { UsernameButton,PasswordButton, ServerCount,Picker,ServerCollectionView  }
-    private enum Column {EntryLabels,AddHideRemoveButtons,ServerAddUpdateButtons,AddButton }
+    private enum Row { UsernameButton, PasswordButton, ServerCount, Picker, ServerCollectionView }
+    private enum Column { EntryLabels, AddHideButtons, ServerAddRemoveUpdateButtons, AddButton }
 }

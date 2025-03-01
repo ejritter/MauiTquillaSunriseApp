@@ -1,7 +1,7 @@
 ﻿namespace MauiTquillaSunrise.View;
 public class ServerModelDataTemplate : DataTemplate
 {
-    public ServerModelDataTemplate() : base(() => CreateServerModelGrid().Top())
+    public ServerModelDataTemplate() : base(() => CreateServerModelGrid().Top().CenterHorizontal())
     {
 
     }
@@ -9,16 +9,16 @@ public class ServerModelDataTemplate : DataTemplate
     private static Grid CreateServerModelGrid() => new Grid()
     {
         RowDefinitions = Rows.Define(
-            (Row.ServerModel, 50)),
+            (Row.ServerModel, 55)),
         //width
         ColumnDefinitions = Columns.Define(
-            (Column.DrinkImage,10),
-            (Column.Labels,80)),
+            (Column.DrinkImage,60),
+            (Column.Labels,Star)),
         
-        RowSpacing = 5,
+        RowSpacing = 2,
         ColumnSpacing = 2,
-        Margin = 8,
-        Padding = 8,
+        Margin = 2,
+        Padding = 2,
 
         Children =
         {
@@ -30,26 +30,26 @@ public class ServerModelDataTemplate : DataTemplate
             //TODO fix this so that imgae paths are not reliant on viewmodels
                 .Bind(Image.SourceProperty, source:"drinkicon.png"),
 
-            new Label()
+            new ServerLabel()
                 .Column(Column.Labels)
                 .Row(Row.ServerModel)
                 .Top()
-                .Center()
+                .End()
                 .Bind(Label.TextProperty, nameof(ServerModel.ServerName)),
 
-           new Label()
+           new ServerLabel()
                 .Column(Column.Labels)
                 .Row(Row.ServerModel)
                 .CenterVertical()
-                .Center()
+                .End()
                 .Bind(Label.TextProperty, nameof(ServerModel.DomainName)),
 
-           new Label()
+           new ServerLabel()
                 .Column(Column.Labels)
                 .Row(Row.ServerModel)
                 .Bind(Label.TextProperty, nameof(ServerModel.Port))
                 .Bottom()
-                .Center()
+                .End()
         }
     };
 

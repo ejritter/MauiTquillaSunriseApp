@@ -9,6 +9,7 @@ public abstract class BasePage<TViewModel> : ContentPage where TViewModel : Base
     {
         BindingContext = vm;
         Build();
+
     }
 
     protected abstract void Build();
@@ -16,13 +17,13 @@ public abstract class BasePage<TViewModel> : ContentPage where TViewModel : Base
     protected override void OnNavigatedTo(NavigatedToEventArgs args)
     {
         base.OnNavigatedTo(args);
-        Build();
+
 #if DEBUG
         HotReloadService.UpdateApplicationEvent += ReloadUI;
 #endif
     }
-     
-    protected override  void OnNavigatedFrom(NavigatedFromEventArgs args)
+
+    protected override void OnNavigatedFrom(NavigatedFromEventArgs args)
     {
         base.OnNavigatedFrom(args);
 #if DEBUG

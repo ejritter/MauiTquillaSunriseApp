@@ -12,8 +12,8 @@ public class GeneralAlertPopupPage : BasePopup<GeneralAlertPopupViewModel>
         Color = Colors.Red;
         Content = new VerticalStackLayout()
         {
-            Spacing = 10,
-            Margin = 10,
+            Spacing = 2,
+            Margin = 2,
             HeightRequest = this.Window.Height * 0.9,
             WidthRequest = this.Window.Width * 0.9,
             Children =
@@ -28,7 +28,11 @@ public class GeneralAlertPopupPage : BasePopup<GeneralAlertPopupViewModel>
                                                             .Font(bold:true, size:20)}
                        .ItemTemplate(new ServerModelDataTemplate())
                        .Bind(CollectionView.ItemsSourceProperty, getter: (GeneralAlertPopupViewModel vm) => vm.Servers)
-                       .Height(300),
+                       .Top()
+                       .Center()
+                       .Fill()
+                       .Height(300)
+                       .BackgroundColor(Colors.DarkGrey),
 
                   new Button()
                     .Text("OK")
