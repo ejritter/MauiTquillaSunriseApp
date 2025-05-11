@@ -12,6 +12,7 @@ public class ServerLabel : Label
     {
         {
             FontSize = 10;
+            TextColor = ResourceColors.TquillaTextColor;
         }
     }
 }

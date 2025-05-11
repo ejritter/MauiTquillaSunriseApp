@@ -15,11 +15,11 @@ public partial class ServerModel : ObservableObject, IComparable<ServerModel>
     {
         if (other == null) return 1;
 
-        int serverNameComparison = string.Compare(this.serverName, other.serverName, StringComparison.Ordinal);
-        if (serverNameComparison != 0) return serverNameComparison;
-
         int domainNameComparison = string.Compare(this.domainName, other.domainName, StringComparison.Ordinal);
         if (domainNameComparison != 0) return domainNameComparison;
+
+        int serverNameComparison = string.Compare(this.serverName, other.serverName, StringComparison.Ordinal);
+        if (serverNameComparison != 0) return serverNameComparison;
 
         return string.Compare(this.port, other.port, StringComparison.Ordinal);
     }

@@ -19,7 +19,7 @@ public partial class MainViewModel : BaseViewModel
     private const string _infoFormat = "Make sure servers are in a [servername].[domainname].[topleveldomain]:[port] format";
     private const string _domainColonTarget = @"Domain:target=";
 
-    private List<ServerModel> _serversSelected = new();
+    private ObservableCollection<ServerModel> _serversSelected = new();
    // private List<ServerModel> _allServers = new();
     private ObservableCollection<ServerModel> _allServers = new();
 
@@ -33,6 +33,7 @@ public partial class MainViewModel : BaseViewModel
     private ObservableCollection<DomainModel> domains = new();
     
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SetSErversToPickerSelectedItemCommand))]
     private DomainModel selectedDomain = null;
 
     [ObservableProperty]
@@ -96,20 +97,24 @@ public partial class MainViewModel : BaseViewModel
     private bool isServerSelected = false;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ServerStringCount))]
     private int serverCount = 0;
 
+    public string ServerStringCount => $"Server Count: {serverCount}";
     private ObservableCollection<ServerModel> _invalidServers = new();
     public MainViewModel(IPopupService popupService)
     {
         _popupService = popupService;
         IsEnabled = Utilities.IsUserInitialized(User);
+
     }
 
     private void SetPickerDefault()
     {
         //should always have the ###-ALL-### DomainModel.
-        SelectedDomain = Domains.First(dm => dm.DomainName == _allDomain);
-        SelectedDomainIndex = 0;
+        //SelectedDomain = Domains.First(dm => dm.DomainName == _allDomain);
+        //SelectedDomainIndex = 0;
+        SelectedDomain = Domains[0];
     }
 
     private void ServerCollection_ChangedEvent(object? sender, EventArgs e)
@@ -129,7 +134,7 @@ public partial class MainViewModel : BaseViewModel
  
 
     [RelayCommand]
-    public void AddServer(string server)
+    public async void AddServer(string server)
     {
         if (string.IsNullOrEmpty(server))
         {
@@ -164,7 +169,7 @@ public partial class MainViewModel : BaseViewModel
             }
             catch (Exception ex)
             {
-                ShowPopupAsync(title: "Error!", message: $"Cannot add server {server}. Error: {ex}", servers: null, isDismissable: false);
+                await ShowPopupAsync(title: "Error!", message: $"Cannot add server {server}. Error: {ex}", servers: null, isDismissable: false);
             }
         }
     }
@@ -188,21 +193,19 @@ public partial class MainViewModel : BaseViewModel
             if (string.IsNullOrEmpty(serverText))
             {
                 message.AppendLine($"Update servers for selected domain: {SelectedDomain.DomainName}?");
-                //var confirm = await GeneralPopupService.GetUserConfirmationPopup(title, message.ToString(), Servers.ToList());
-                ShowPopupAsync(title: title, message: message.ToString(), servers: Servers, isDismissable: false);
-                //user selected okay
+                await ShowPopupAsync(title: title, message: message.ToString(), servers: Servers, isDismissable: false);
                 if (_confirmOrCancel)
                 {
                     message.Clear();
                     try
                     {
-                        foreach (ServerModel _server in Servers)
+                        foreach (ServerModel server in Servers)
                         {
-                            string addCmdKey = Utilities.FormatAddCmdKey(_server.ServerName, User.UserName, User.Password);
+                            string addCmdKey = Utilities.FormatAddCmdKey(server.ServerName, User.UserName, User.Password);
                             CmdCommand(addCmdKey);
-                            if (CheckIfServerExists(_server) == false)
+                            if (CheckIfServerExists(server) == false)
                             {
-                                throw new Exception($"Unknown error adding {_server.ServerName}.{_server.DomainName}:{_server.Port} using CmdKey: {addCmdKey}");
+                                throw new Exception($"Unknown error adding {server.ServerName}.{server.DomainName}:{server.Port} using CmdKey: {addCmdKey}");
                             }
                         }
                     }
@@ -223,7 +226,7 @@ public partial class MainViewModel : BaseViewModel
             }
             else
             {
-                //update single _server
+                //update single server
                 try
                 {
                     string addCmdKey = Utilities.FormatAddCmdKey(serverText, User.UserName, User.Password);
@@ -251,12 +254,12 @@ public partial class MainViewModel : BaseViewModel
             {
                 message.AppendLine("Done.");
             }
-            //GeneralPopupService.GeneralAlertPopup(title, message.ToString(), false);
+            await ShowPopupAsync(title: title, message: message.ToString(), servers: null, isDismissable: true);
         }
     }
 
     [RelayCommand]
-    public void PageLoaded()
+    public async void PageLoaded()
     {
         //LoadDummyServers(60);
         Servers.CollectionChanged += ServerCollection_ChangedEvent;
@@ -266,10 +269,10 @@ public partial class MainViewModel : BaseViewModel
         SetPickerDefault();
         if (_invalidServers.Count > 0)
         {
-            ShowPopupAsync(title: "Warning!", message: "Cannot manage the following servers", servers: _invalidServers, isDismissable: false);
+            await ShowPopupAsync(title: "Warning!", message: "Cannot manage the following servers:", servers: _invalidServers, isDismissable: false);
         }
 
-        _allServers.SortCollectionAsc();
+        
         _allServers.CollectionChanged += AllServers_CollectionChanged;
         Domains.CollectionChanged += DomainsCollection_Changed;
     }
@@ -287,8 +290,10 @@ public partial class MainViewModel : BaseViewModel
         //}
         if (_newServer != null)
         {
-            AddDomainNew(_newServer);
-            SetPickerToDomain(_newServer.DomainName);
+            AddDomain(_newServer);
+           // SetPickerToDomain(_newServer.DomainName);
+            //todo another bug. This is setting the picker to the new domain value.
+            //i think we need to remove the SetPicker on line 289
             if (SelectedDomain.DomainName != _newServer.DomainName)
             {
                  SetPickerToDomain(_newServer.DomainName);
@@ -318,7 +323,7 @@ public partial class MainViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            ShowPopupAsync(title: "Error removing srv", message: $"{server.ServerName} could not be removed: {ex.Message}", servers: null, isDismissable: false);
+            await ShowPopupAsync(title: "Error removing srv", message: $"{server.ServerName} could not be removed: {ex.Message}", servers: null, isDismissable: false);
         }
         finally
         {
@@ -340,6 +345,7 @@ public partial class MainViewModel : BaseViewModel
         if (_domainDictionary[serverDomain].Count <= 0)
         {
             SetPickerDefault();
+            Domains.Remove(serverDomain);
         }
     }
 
@@ -355,11 +361,11 @@ public partial class MainViewModel : BaseViewModel
         try
         {
             StringBuilder message = new();
-            string title = "Removing Servers";
-            message.Append($"Managing: {SelectedDomain.DomainName} ");
-            message.AppendLine($"Server Count: {_serversSelected.ToList().Count} ");
+            string title = "Warning!";
+            message.AppendLine($"Removing Server from domain: {SelectedDomain.DomainName} ");
+            message.AppendLine($"Current Server Count: {_serversSelected.Count} ");
 
-            ShowPopupAsync(title: title, message: message.ToString(), servers: _serversSelected.ToObservableCollection<ServerModel>(), isDismissable: false);
+            await ShowPopupAsync(title: title, message: message.ToString(), servers: _serversSelected, isDismissable: false);
             if (_confirmOrCancel)
             {
                 foreach (ServerModel server in _serversSelected.ToList())
@@ -377,7 +383,7 @@ public partial class MainViewModel : BaseViewModel
                 {
                     message.AppendLine("Done.");
                 }
-                ShowPopupAsync(title: title, message: message.ToString(), servers: null, isDismissable: false);
+                await ShowPopupAsync(title: title, message: message.ToString(), servers: null, isDismissable: false);
             }
         }
         finally
@@ -407,13 +413,16 @@ public partial class MainViewModel : BaseViewModel
     [RelayCommand]
     public void ServerSelected(object sender)
     {
-        if (sender is CollectionView servers)
+        if (sender is CollectionView cv)
         {
-            if (servers.SelectedItems.Count > 0)
+            if (cv.SelectedItems.Count > 0)
             {
                 IsServerSelected = true;
                 _serversSelected.Clear();
-                _serversSelected = servers.SelectedItems.Cast<ServerModel>().ToList();
+                foreach (var server in cv.SelectedItems)
+                {
+                    _serversSelected.Add((ServerModel)server);
+                }
             }
             else
             {
@@ -455,7 +464,7 @@ public partial class MainViewModel : BaseViewModel
 
     }
 
-    private void LoadServersAndDomains()
+    private async void LoadServersAndDomains()
     {
         _allServers.Clear();
         Domains.Clear();
@@ -479,8 +488,8 @@ public partial class MainViewModel : BaseViewModel
                         serverName = currentLine.Substring(startIndex, endIndex);
                         serverModel = new ServerModel { ServerName = serverName };
                         var newServer = serverModel.ServerName.GetFullServerName().CreateServerModel();
-                        AddServerNew(newServer);
-                        AddDomainNew(newServer);
+                        AddServer(newServer);
+                        AddDomain(newServer);
                     }
                 }
                 catch (Exception ex)
@@ -488,10 +497,12 @@ public partial class MainViewModel : BaseViewModel
                     _invalidServers.Add(serverModel);
                 }
             }
+
+            _allServers.SortCollectionAsc();
         }
         catch (Exception ex)
         {
-            ShowPopupAsync(title: "Error!", message: $"{_cmdKeyList} encountered an error.", servers: null, isDismissable: false);
+            await ShowPopupAsync(title: "Error!", message: $"{_cmdKeyList} encountered an error.", servers: null, isDismissable: false);
         }
     }
 
@@ -516,11 +527,12 @@ public partial class MainViewModel : BaseViewModel
         if (allDomain is null)
         {
             allDomain = new DomainModel { DomainName = _allDomain };
+            Domains.SortCollectionAsc();
             Domains.Insert(0,allDomain);
             _domainDictionary.Add(allDomain, _allServers);
         }
     }
-    private void AddDomainNew(ServerModel server)
+    private void AddDomain(ServerModel server)
     {
         var found = Domains.FirstOrDefault(dm => dm.DomainName == server.DomainName);
         if(found is null) 
@@ -529,7 +541,7 @@ public partial class MainViewModel : BaseViewModel
             Domains.Add(domainModel); 
         }
     }
-    private void AddServerNew(ServerModel server)
+    private void AddServer(ServerModel server)
     {
         var found = _allServers.FirstOrDefault(srv => srv.ServerName == server.ServerName 
             && srv.DomainName == server.DomainName);
@@ -560,24 +572,25 @@ public partial class MainViewModel : BaseViewModel
            });
     }
 
-    private async void ShowPopupAsync(string title, string message,
-                                        ObservableCollection<ServerModel>? servers,
-                                        bool isDismissable)
+    private async Task<bool> ShowPopupAsync(string title, string message,
+                                            ObservableCollection<ServerModel>? servers,
+                                            bool isDismissable)
     {
-        var _ = await _popupService.ShowPopupAsync<GeneralAlertPopupViewModel>(
+        var result = await _popupService.ShowPopupAsync<GeneralAlertPopupViewModel>(
               onPresenting: vm =>
               {
                   vm.Title = title;
                   vm.Message = message;
-                  vm.Servers = servers;
                   vm.IsDismissable = isDismissable;
-
-                  vm.PopupClosed += (sender, result) =>
+                  vm.Servers = servers;
+                  vm.PopupClosed += (sender, popupResult) =>
                   {
-                      _confirmOrCancel = result;
+                      _confirmOrCancel = popupResult;
                       _popupService.ClosePopupAsync();
                   };
               });
+
+        return _confirmOrCancel;
     }
 
     [RelayCommand]
@@ -618,15 +631,13 @@ public partial class MainViewModel : BaseViewModel
         }
     }
 
-    public void SetServersToPickerSelectedItem(object? sender, EventArgs e)
+    [RelayCommand]
+    private void SetSErversToPickerSelectedItem()
     {
-        if (sender is Picker picker &&
-                picker.SelectedItem is DomainModel dm)
-        {
-            SetPickerToDomain(dm.DomainName);
-            SetServersToSelectedDomainsServers();
-        }
+        SetPickerToDomain(SelectedDomain.DomainName);
+        SetServersToSelectedDomainsServers();
     }
+
 
     private void SetServersToSelectedDomainsServers()
     {

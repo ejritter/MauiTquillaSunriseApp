@@ -26,7 +26,6 @@ public static class MauiProgram
         builder.Services.AddSingleton<MainPage>();
 
         builder.Services.AddTransientPopup<GeneralAlertPopupPage,GeneralAlertPopupViewModel>();
-        
         return builder.Build();
     }
 }

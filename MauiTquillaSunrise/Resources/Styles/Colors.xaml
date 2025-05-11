@@ -20,6 +20,7 @@
     <Color x:Key="TquillaBorderStroke">#FF69B4</Color>
     <Color x:Key="TquillaSecondary">#e41c51</Color>
     <Color x:Key="TquillaDisabled">#C8C8C8</Color>
+    <Color x:Key="TquillaBackground">#FFFFFF</Color>
 
 
     <!-- Light Theme -->

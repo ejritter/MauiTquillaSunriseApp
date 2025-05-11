@@ -9,15 +9,17 @@ public partial class GeneralAlertPopupViewModel : BaseViewModel
 
     [ObservableProperty]
     private bool isDismissable = true;
-
+    
     [ObservableProperty]
     private ObservableCollection<ServerModel> servers = new();
 
     public event EventHandler<bool> PopupClosed;
     public GeneralAlertPopupViewModel()
     {
-        
+
     }
+
+
 
     [RelayCommand]
     private void OkayClicked()

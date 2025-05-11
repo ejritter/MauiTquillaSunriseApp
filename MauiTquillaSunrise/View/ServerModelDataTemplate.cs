@@ -27,7 +27,6 @@ public class ServerModelDataTemplate : DataTemplate
                 .Row(Row.ServerModel)
                 .Height(50)
                 .Width(30)
-            //TODO fix this so that imgae paths are not reliant on viewmodels
                 .Bind(Image.SourceProperty, source:"drinkicon.png"),
 
             new ServerLabel()

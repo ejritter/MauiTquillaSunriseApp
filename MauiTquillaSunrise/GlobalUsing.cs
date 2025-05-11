@@ -1,4 +1,5 @@
 ﻿global using CommunityToolkit.Maui;
+global using CommunityToolkit.Maui.Behaviors;
 global using CommunityToolkit.Maui.Core;
 global using CommunityToolkit.Maui.Core.Extensions;
 global using CommunityToolkit.Maui.Views;
@@ -24,6 +25,8 @@ global using MauiTquillaSunrise.Services;
 global using Microsoft.Maui;
 global using Microsoft.Maui.Hosting;
 global using Microsoft.Maui.Controls;
+global using Microsoft.Maui.Controls.Shapes;
 global using Microsoft.UI.Xaml.Markup;
 global using Microsoft.Extensions.Logging;
 
+global using System.Xml;

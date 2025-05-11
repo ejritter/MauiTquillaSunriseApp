@@ -23,6 +23,13 @@ public abstract class BasePage<TViewModel> : ContentPage where TViewModel : Base
 #endif
     }
 
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+#if DEBUG
+        HotReloadService.UpdateApplicationEvent -= ReloadUI;
+#endif
+    }
     protected override void OnNavigatedFrom(NavigatedFromEventArgs args)
     {
         base.OnNavigatedFrom(args);
