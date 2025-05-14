@@ -1,6 +1,11 @@
 ﻿namespace MauiTquillaSunrise.ViewModel;
 public partial class GeneralAlertPopupViewModel : BaseViewModel
 {
+
+    public GeneralAlertPopupViewModel()
+    {
+    }
+
     [ObservableProperty]
     private string message = string.Empty;
 
@@ -14,12 +19,6 @@ public partial class GeneralAlertPopupViewModel : BaseViewModel
     private ObservableCollection<ServerModel> servers = new();
 
     public event EventHandler<bool> PopupClosed;
-    public GeneralAlertPopupViewModel()
-    {
-
-    }
-
-
 
     [RelayCommand]
     private void OkayClicked()

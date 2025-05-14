@@ -19,6 +19,12 @@ public partial class MainViewModel : BaseViewModel
     private const string _infoFormat = "Make sure servers are in a [servername].[domainname].[topleveldomain]:[port] format";
     private const string _domainColonTarget = @"Domain:target=";
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EnableControls))]
+    private bool isPopupShowing = false;
+
+    public bool EnableControls => !IsPopupShowing;
+
     private ObservableCollection<ServerModel> _serversSelected = new();
    // private List<ServerModel> _allServers = new();
     private ObservableCollection<ServerModel> _allServers = new();
@@ -33,7 +39,7 @@ public partial class MainViewModel : BaseViewModel
     private ObservableCollection<DomainModel> domains = new();
     
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SetSErversToPickerSelectedItemCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SetServersToPickerSelectedItemCommand))]
     private DomainModel selectedDomain = null;
 
     [ObservableProperty]
@@ -169,7 +175,13 @@ public partial class MainViewModel : BaseViewModel
             }
             catch (Exception ex)
             {
-                await ShowPopupAsync(title: "Error!", message: $"Cannot add server {server}. Error: {ex}", servers: null, isDismissable: false);
+                StringBuilder errorMessage = new();
+                errorMessage.AppendLine("Cannot add server:");
+                errorMessage.AppendLine($"\t{server}");
+                errorMessage.AppendLine($"Error:");
+                errorMessage.AppendLine($"\t{ex}");
+
+                await ShowPopupAsync(title: "Error!", message:errorMessage.ToString(), servers: null, isDismissable: false);
             }
         }
     }
@@ -254,7 +266,7 @@ public partial class MainViewModel : BaseViewModel
             {
                 message.AppendLine("Done.");
             }
-            await ShowPopupAsync(title: title, message: message.ToString(), servers: null, isDismissable: true);
+            await ShowPopupAsync(title: title, message: message.ToString(), servers: null, isDismissable: false);
         }
     }
 
@@ -271,8 +283,6 @@ public partial class MainViewModel : BaseViewModel
         {
             await ShowPopupAsync(title: "Warning!", message: "Cannot manage the following servers:", servers: _invalidServers, isDismissable: false);
         }
-
-        
         _allServers.CollectionChanged += AllServers_CollectionChanged;
         Domains.CollectionChanged += DomainsCollection_Changed;
     }
@@ -362,8 +372,8 @@ public partial class MainViewModel : BaseViewModel
         {
             StringBuilder message = new();
             string title = "Warning!";
-            message.AppendLine($"Removing Server from domain: {SelectedDomain.DomainName} ");
-            message.AppendLine($"Current Server Count: {_serversSelected.Count} ");
+            message.AppendLine($"Removing Server from domain:\n\t{SelectedDomain.DomainName}");
+            message.AppendLine($"Current Server Count:\t{_serversSelected.Count}");
 
             await ShowPopupAsync(title: title, message: message.ToString(), servers: _serversSelected, isDismissable: false);
             if (_confirmOrCancel)
@@ -554,28 +564,31 @@ public partial class MainViewModel : BaseViewModel
 
 
 
-    private void ShowPopup(string title, string message, ObservableCollection<ServerModel>? servers, bool isDismissable)
-    {
-        _popupService.ShowPopup<GeneralAlertPopupViewModel>(
-           onPresenting: vm =>
-           {
-               vm.Title = title;
-               vm.Message = message;
-               vm.Servers = servers;
-               vm.IsDismissable = isDismissable;
+    //private void ShowPopup(string title, string message, ObservableCollection<ServerModel>? servers, bool isDismissable)
+    //{
+    //    IsPopupShowing = true;
+    //    _popupService.ShowPopup<GeneralAlertPopupViewModel>(
+    //       onPresenting: vm =>
+    //       {
+    //           vm.Title = title;
+    //           vm.Message = message;
+    //           vm.Servers = servers;
+    //           vm.IsDismissable = isDismissable;
 
-               vm.PopupClosed += (sender, result) =>
-               {
-                   _confirmOrCancel = result;
-                   _popupService.ClosePopup();
-               };
-           });
-    }
+    //           vm.PopupClosed += (sender, result) =>
+    //           {
+    //               _confirmOrCancel = result;
+    //               _popupService.ClosePopup();
+    //           };
+    //       });
+    //    IsPopupShowing = false;
+    //}
 
     private async Task<bool> ShowPopupAsync(string title, string message,
                                             ObservableCollection<ServerModel>? servers,
                                             bool isDismissable)
     {
+        IsPopupShowing = true;
         var result = await _popupService.ShowPopupAsync<GeneralAlertPopupViewModel>(
               onPresenting: vm =>
               {
@@ -585,11 +598,12 @@ public partial class MainViewModel : BaseViewModel
                   vm.Servers = servers;
                   vm.PopupClosed += (sender, popupResult) =>
                   {
+                      
                       _confirmOrCancel = popupResult;
                       _popupService.ClosePopupAsync();
                   };
               });
-
+        IsPopupShowing = false;
         return _confirmOrCancel;
     }
 
@@ -600,11 +614,11 @@ public partial class MainViewModel : BaseViewModel
         RevealUsernameButtonIcon = RevealUsernameButtonIcon == _eyeOffIcon ? _eyeIcon : _eyeOffIcon;
     }
     [RelayCommand]
-    public void AddUsername(string userName)
+    public async void AddUsername(string userName)
     {
         if (string.IsNullOrEmpty(userName))
         {
-            ShowPopup(title: "Adding Username", message: "Please provide a username", servers: null, isDismissable: true);
+            await ShowPopupAsync(title: "Adding Username", message: "Please provide a username", servers: null, isDismissable: false);
             UserNameText = User.UserName ?? string.Empty;
             return;
         }
@@ -616,11 +630,11 @@ public partial class MainViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public void AddPassword(string password)
+    public async void AddPassword(string password)
     {
         if (string.IsNullOrEmpty(password))
         {
-            ShowPopup(title: "Adding Password", message: "Please provide a password", servers: null, isDismissable: true);
+            await ShowPopupAsync(title: "Adding Password", message: "Please provide a password", servers: null, isDismissable: false);
             PasswordText = User.Password ?? string.Empty;
             return;
         }
@@ -632,7 +646,7 @@ public partial class MainViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void SetSErversToPickerSelectedItem()
+    private void SetServersToPickerSelectedItem()
     {
         SetPickerToDomain(SelectedDomain.DomainName);
         SetServersToSelectedDomainsServers();

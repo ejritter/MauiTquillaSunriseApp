@@ -21,7 +21,7 @@
 		<Nullable>enable</Nullable>
 
 		<!--Some weird bug, the warning will not go away even though the packages are added.-->
-		<SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
+
 
 		<!-- Display name -->
 		<ApplicationTitle>Maui T-Quilla Sunrise</ApplicationTitle>
@@ -30,7 +30,7 @@
 		<ApplicationId>EJRitterDevelopment.mauitquillasunrise</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.19041.0</SupportedOSPlatformVersion>
@@ -41,6 +41,12 @@
 		<GenerateTestArtifacts>True</GenerateTestArtifacts>
 		<WindowsPackageType>None</WindowsPackageType>
 		<Configurations>Release;Debug</Configurations>
+		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<PackageCertificateThumbprint>59577ADD9261A20D07B3227B35BD967934CDBD96</PackageCertificateThumbprint>
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+		<AppInstallerUri>C:\Dev\Deployments\MauiTquillaSunrise\Release_1.1</AppInstallerUri>
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 
 	</PropertyGroup>
 
@@ -66,25 +72,6 @@
 
 
 	<ItemGroup>
-	  <Compile Remove="App.xaml.cs" />
-	  <Compile Remove="AppShell.xaml.cs" />
-	  <Compile Remove="Pages\GetConfirmationPopupPage.cs" />
-	  <Compile Remove="ViewModel\GetConfirmationPopupViewModel.cs" />
-	  <Compile Remove="View\GeneralAlertPopupView.xaml.cs" />
-	  <Compile Remove="View\GetConfirmationPopupView.xaml.cs" />
-	  <Compile Remove="View\MainView.xaml.cs" />
-	</ItemGroup>
-
-
-	<ItemGroup>
-	  <MauiXaml Remove="App.xaml" />
-	  <MauiXaml Remove="AppShell.xaml" />
-	  <MauiXaml Remove="View\GeneralAlertPopupView.xaml" />
-	  <MauiXaml Remove="View\GetConfirmationPopupView.xaml" />
-	  <MauiXaml Remove="View\MainView.xaml" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <None Remove="Resources\Images\ic_fluent_add_24_filled.svg" />
 	  <None Remove="Resources\Images\ic_fluent_eye_24_regular.svg" />
 	  <None Remove="Resources\Images\ic_fluent_eye_off_24_regular.svg" />
@@ -95,9 +82,9 @@
 		<PackageReference Include="CommunityToolkit.Maui" Version="11.2.0" />
 		<PackageReference Include="CommunityToolkit.Maui.Markup" Version="6.0.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.60" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.4" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.60" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.61" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.5" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.61" />
 	</ItemGroup>
 
 	<ItemGroup>

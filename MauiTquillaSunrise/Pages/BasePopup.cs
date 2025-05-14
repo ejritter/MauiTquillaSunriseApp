@@ -28,7 +28,6 @@ public abstract class BasePopup<TViewModel> : Popup where TViewModel : BaseViewM
         Build();
 
     }
-
     protected override Task OnClosed(object? result, bool wasDismissedByTappingOutsideOfPopup, CancellationToken token = default)
     {
         #if DEBUG
@@ -49,6 +48,7 @@ public abstract class BasePopup<TViewModel> : Popup where TViewModel : BaseViewM
     }
 
     protected abstract void Build();
+
 
 
     protected override Task OnDismissedByTappingOutsideOfPopup(CancellationToken token = default)

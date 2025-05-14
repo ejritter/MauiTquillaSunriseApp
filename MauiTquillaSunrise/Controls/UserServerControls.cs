@@ -10,13 +10,7 @@ public class UserServerControls : ContentView
 
     private Border IniatializeControls()
     {
-        var picker = new Picker()
-        {
-            Title = "Select Island:",
-            ItemDisplayBinding = new Binding(nameof(DomainModel.DomainName)),
-            TextColor = ResourceColors.TquillaTextColor,
-            TitleColor = ResourceColors.TquillaTextColor
-        }
+        var picker = new CustomPicker()
         .ColumnSpan(All<Column>())
         .Row(Row.Picker)
         .Center()
@@ -34,7 +28,7 @@ public class UserServerControls : ContentView
             {
                 if (this.BindingContext is MainViewModel vm)
                 {
-                    vm.SetSErversToPickerSelectedItemCommand.Execute(null);
+                    vm.SetServersToPickerSelectedItemCommand.Execute(null);
                 }
             })
         });
@@ -64,12 +58,15 @@ public class UserServerControls : ContentView
                                     .Column(Column.LabelsAndCount)
                                     .Row(Row.ServerCount)
                                     .Start()
+                                    .TextCenterHorizontal()
                                     .Bind(Label.TextProperty, getter:(MainViewModel vm) => vm.ServerStringCount)
                                     .TextColor(ResourceColors.TquillaTextColor),
 
                                 picker
+                                    .Center()
+                                    .Row(Row.Picker)
                             }
-            }
+            }.Top().Center()
         };
     }
 

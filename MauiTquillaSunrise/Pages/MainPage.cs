@@ -1,6 +1,4 @@
-﻿using Microsoft.Maui.Graphics.Text;
-
-namespace MauiTquillaSunrise.Pages;
+﻿namespace MauiTquillaSunrise.Pages;
 public class MainPage : BasePage<MainViewModel>
 {
     public MainPage(MainViewModel vm) : base(vm)
@@ -14,72 +12,81 @@ public class MainPage : BasePage<MainViewModel>
     }
 
 
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+    }
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+    }
+
     protected override void Build()
     {
         Content = new ScrollView()
-    {
-        BackgroundColor = ResourceColors.TquillaBackground,
-        Content = new Grid()
         {
-            RowDefinitions = Rows.Define(
-                (Row.UserEntryControls, Star),
-                (Row.UserServerControls, Star),
-                (Row.CollectionView, Star)),
-
-            RowSpacing = 8,
-            Padding = 8,
-            Margin = 8,
-
-            Children =
+            BackgroundColor = ResourceColors.TquillaBackground,
+            Content = new Grid()
             {
-                new UserEntryControls()
-                .Row(Row.UserEntryControls),
+                RowDefinitions = Rows.Define(
+                    (Row.UserEntryControls, Star),
+                    (Row.UserServerControls, Star),
+                    (Row.CollectionView, Star)),
 
-                new UserServerControls()
-                    .Row(Row.UserServerControls),
+                RowSpacing = 8,
+                Padding = 8,
+                Margin = 8,
 
-                new CustomBorder()
+                Children =
                 {
-                        Padding = 20,
-                        Content = new Grid()
-                        {
-                            ColumnDefinitions = Columns.Define(
-                            (Column.CollectionView, Auto),
-                            (Column.RemoveButton, Auto)),
-                    
-                            Children = 
-                            {
-                                new CollectionView()
-                                {
-                                    SelectionMode = SelectionMode.Multiple,
-                                    MaximumWidthRequest = 250,
-                                }
-                                    .Assign(out CollectionView serverCv)
-                                    .Column(Column.CollectionView)
-                                    .EmptyView("Vault currently empty")
-                                    .Top()
-                                    .Center()
-                                    .Bind(CollectionView.ItemsSourceProperty, getter:(MainViewModel vm) => vm.Servers)
-                                    .Bind(CollectionView.SelectionChangedCommandParameterProperty, source:serverCv)
-                                    .Bind(CollectionView.SelectionChangedCommandProperty, getter:(MainViewModel vm) => vm.ServerSelectedCommand)
-                                    .ItemTemplate(new ServerModelDataTemplate()),
+                    new UserEntryControls()
+                    .Row(Row.UserEntryControls),
 
-                                new CustomImageButton()
-                                    .Column(Column.RemoveButton)
-                                    .Center()
-                                    .Margin(new Thickness(5, 0, 0, 0))
-                                    .Bind(ImageButton.SourceProperty, getter:(MainViewModel vm) => vm.RemoveServerIcon)
-                                    .Bind(ImageButton.IsVisibleProperty, getter: (MainViewModel vm) => vm.IsServerSelected)
-                                    .Bind(ImageButton.CommandProperty, getter: (MainViewModel vm) => vm.RemoveServerCommand)
-                            }
-                        }.Center()
+                    new UserServerControls()
+                        .Row(Row.UserServerControls),
+
+                    new CustomBorder()
+                    {
+                            Padding = 20,
+                            Content = new Grid()
+                            {
+                                ColumnDefinitions = Columns.Define(
+                                (Column.CollectionView, Auto),
+                                (Column.RemoveButton, Auto)),
+                        
+                                Children = 
+                                {
+                                    new CollectionView()
+                                    {
+                                        SelectionMode = SelectionMode.Multiple,
+                                        MaximumWidthRequest = 250,
+                                    }
+                                        .Assign(out CollectionView serverCv)
+                                        .Column(Column.CollectionView)
+                                        .EmptyView("Vault currently empty")
+                                        .Top()
+                                        .Center()
+                                        .Bind(CollectionView.ItemsSourceProperty, getter:(MainViewModel vm) => vm.Servers)
+                                        .Bind(CollectionView.SelectionChangedCommandParameterProperty, source:serverCv)
+                                        .Bind(CollectionView.SelectionChangedCommandProperty, getter:(MainViewModel vm) => vm.ServerSelectedCommand)
+                                        .ItemTemplate(new ServerModelDataTemplate()),
+
+                                    new CustomImageButton()
+                                        .Column(Column.RemoveButton)
+                                        .Center()
+                                        .Margin(new Thickness(5, 0, 0, 0))
+                                        .Bind(ImageButton.SourceProperty, getter:(MainViewModel vm) => vm.RemoveServerIcon)
+                                        .Bind(ImageButton.IsVisibleProperty, getter: (MainViewModel vm) => vm.IsServerSelected)
+                                        .Bind(ImageButton.CommandProperty, getter: (MainViewModel vm) => vm.RemoveServerCommand)
+                                }
+                            }.Center()
+                    }
+                    .Row(Row.CollectionView)
+                    .Center()
+                    .Fill()
                 }
-                .Row(Row.CollectionView)
-                .Center()
-                .Fill()
-            }
-        }.Top()
-    };
+            }.Top()
+        }.Bind(ScrollView.IsEnabledProperty, getter:(MainViewModel vm) => vm.EnableControls);
 
     }
     private enum Row { UserEntryControls, UserServerControls, CollectionView}

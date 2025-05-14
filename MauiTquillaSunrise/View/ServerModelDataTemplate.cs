@@ -3,7 +3,6 @@ public class ServerModelDataTemplate : DataTemplate
 {
     public ServerModelDataTemplate() : base(() => CreateServerModelGrid().Top().CenterHorizontal())
     {
-
     }
 
     private static Grid CreateServerModelGrid() => new Grid()
@@ -50,7 +49,7 @@ public class ServerModelDataTemplate : DataTemplate
                 .Bottom()
                 .End()
         }
-    };
+    }.BackgroundColor(ResourceColors.TquillaSkyBlue);
 
     private enum Row { ServerModel }
     private enum Column { DrinkImage, Labels }

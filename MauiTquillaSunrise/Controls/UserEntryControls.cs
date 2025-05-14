@@ -6,10 +6,6 @@ public class UserEntryControls : ContentView
 {
     public UserEntryControls()
     {
-        //Content = new ScrollView()
-        //{
-        //    Content = InitializeControls()
-        //};
         Content = InitializeControls();
     }
 
@@ -126,7 +122,7 @@ public class UserEntryControls : ContentView
                     .Bind(Button.CommandProperty, getter:(MainViewModel vm) => vm.UpdateCredentialsCommand)
                 }
 
-            }.Top()
+            }.Top().Center()
         };
     }
 

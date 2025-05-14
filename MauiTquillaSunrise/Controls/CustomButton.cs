@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace MauiTquillaSunrise.Controls;
 
 public class CustomButton : Button
@@ -11,6 +12,26 @@ public class CustomButton : Button
     public CustomButton()
     {
         InitializeButton();
+        this.Clicked += OnButtonClicked;
+    }
+
+    public static readonly BindableProperty ReturnCommandProperty = BindableProperty.Create(
+            propertyName: nameof(ReturnCommand),
+            returnType: typeof(ICommand),
+            declaringType: typeof(CustomButton));
+
+    public ICommand ReturnCommand
+    {
+        get => (ICommand)GetValue(ReturnCommandProperty);
+        set => SetValue(ReturnCommandProperty, value);
+    }
+    
+    private void OnButtonClicked(object sender, EventArgs e)
+    {
+        if (ReturnCommand?.CanExecute(null) == true)
+        {
+            ReturnCommand.Execute(null);
+        }
     }
     protected override void OnPropertyChanged(string propertyName = null)
     {
