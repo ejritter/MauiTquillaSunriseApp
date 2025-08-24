@@ -1,5 +1,4 @@
-﻿
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace MauiTquillaSunrise.Controls;
 
@@ -12,23 +11,12 @@ public class CustomImageButton : ImageButton
 
     private void InitializeImageButton()
     {
-        this.BackgroundColor = ResourceColors.TquillaSkyBlue;
-        this.Height(30);
-        this.Width(30);
-    }
-
-    protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        base.OnPropertyChanged(propertyName);
-        if (propertyName == nameof(IsEnabled))
-        {
-            UpdateBackgroundColor();
-        }
-    }
-
-    private void UpdateBackgroundColor()
-    {
-        this.BackgroundColor = this.IsEnabled ? ResourceColors.TquillaSkyBlue :
-                                                ResourceColors.TquillaDisabled;
+        // Use theme resource for visibility over backgrounds
+        this.SetDynamicResource(ImageButton.BackgroundColorProperty, "TquillaSecondary");
+        this.SetDynamicResource(ImageButton.BorderColorProperty, "TquillaGold");
+        this.BorderWidth = 1;
+        this.CornerRadius = 6;
+        this.Height(34);
+        this.Width(34);
     }
 }

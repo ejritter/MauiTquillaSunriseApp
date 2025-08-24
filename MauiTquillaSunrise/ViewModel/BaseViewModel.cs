@@ -1,11 +1,7 @@
 ﻿namespace MauiTquillaSunrise.ViewModel;
 
-public abstract partial class BaseViewModel : ObservableObject
+public abstract partial class BaseViewModel(IPopupService popupService) : ObservableObject
 {
-    
-    protected BaseViewModel()
-    {
-
-    }
+    protected readonly IPopupService _popupService = popupService;
 
 }

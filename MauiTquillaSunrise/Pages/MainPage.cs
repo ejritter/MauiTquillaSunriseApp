@@ -9,23 +9,13 @@ public class MainPage : BasePage<MainViewModel>
             EventName = nameof(this.Loaded),
             Command = vm.PageLoadedCommand
         });
-    }
-
-
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-    }
-    protected override void OnDisappearing()
-    {
-        base.OnDisappearing();
+        this.BackgroundImageSource = "retro_background.png";
     }
 
     protected override void Build()
     {
         Content = new ScrollView()
         {
-            BackgroundColor = ResourceColors.TquillaBackground,
             Content = new Grid()
             {
                 RowDefinitions = Rows.Define(
@@ -39,6 +29,7 @@ public class MainPage : BasePage<MainViewModel>
 
                 Children =
                 {
+                    // Each control now provides its own background for contrast
                     new UserEntryControls()
                     .Row(Row.UserEntryControls),
 
@@ -91,6 +82,4 @@ public class MainPage : BasePage<MainViewModel>
     }
     private enum Row { UserEntryControls, UserServerControls, CollectionView}
     private enum Column { CollectionView, RemoveButton }
-    //private enum Row { UsernameButton, PasswordButton, ServerCount, Picker, ServerCollectionView }
-    //private enum Column { EntryLabels, AddHideButtons, ServerAddRemoveUpdateButtons, AddButton }
 }

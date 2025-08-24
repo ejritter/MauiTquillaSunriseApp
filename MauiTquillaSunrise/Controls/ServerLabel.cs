@@ -10,9 +10,8 @@ public class ServerLabel : Label
 {
     public ServerLabel()
     {
-        {
-            FontSize = 10;
-            TextColor = ResourceColors.TquillaTextColor;
-        }
+        FontSize = 10;
+        // Use theme resource for text color (vibrant gold for visibility)
+        this.SetDynamicResource(Label.TextColorProperty, "TquillaBlue1");
     }
 }

@@ -12,7 +12,6 @@ public class CustomButton : Button
     public CustomButton()
     {
         InitializeButton();
-        this.Clicked += OnButtonClicked;
     }
 
     public static readonly BindableProperty ReturnCommandProperty = BindableProperty.Create(
@@ -26,30 +25,11 @@ public class CustomButton : Button
         set => SetValue(ReturnCommandProperty, value);
     }
     
-    private void OnButtonClicked(object sender, EventArgs e)
-    {
-        if (ReturnCommand?.CanExecute(null) == true)
-        {
-            ReturnCommand.Execute(null);
-        }
-    }
-    protected override void OnPropertyChanged(string propertyName = null)
-    {
-        base.OnPropertyChanged(propertyName);
-        if (propertyName == nameof(IsEnabled))
-        {
-            UpdateBackground();
-        }
-    }
 
-    private void UpdateBackground()
-    {
-        this.BackgroundColor = this.IsEnabled ? ResourceColors.TquillaSkyBlue :
-                                                ResourceColors.TquillaDisabled;
-    }
     private void InitializeButton()
     {
-        this.BackgroundColor = ResourceColors.TquillaSkyBlue;
-        this.TextColor = ResourceColors.TquillaTextColor;
+        // Use theme resources
+        this.SetDynamicResource(Button.BackgroundColorProperty, "TquillaSecondary");
+        this.SetDynamicResource(Button.TextColorProperty, "TquillaText");
     }
 }

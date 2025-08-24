@@ -1,11 +1,12 @@
 ﻿namespace MauiTquillaSunrise;
 
-public class App : Application
+public partial class App : Application
 {
     private readonly Shell _shell;
     public App(AppShell shell)
     {
         _shell = shell;
+        InitializeComponent();
       
     }
 

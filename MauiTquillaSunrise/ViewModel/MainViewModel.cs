@@ -1,7 +1,11 @@
 ﻿namespace MauiTquillaSunrise.ViewModel;
 public partial class MainViewModel : BaseViewModel
 {
-    private readonly IPopupService _popupService;
+    public MainViewModel(IPopupService popupService) : base(popupService)
+    {
+        IsEnabled = Utilities.IsUserInitialized(User);
+
+    }
     private bool _isLoading = false;
     private bool _confirmOrCancel = false;
     private static string _cmdKeyList = @"cmdkey /list";
@@ -108,12 +112,6 @@ public partial class MainViewModel : BaseViewModel
 
     public string ServerStringCount => $"Server Count: {serverCount}";
     private ObservableCollection<ServerModel> _invalidServers = new();
-    public MainViewModel(IPopupService popupService)
-    {
-        _popupService = popupService;
-        IsEnabled = Utilities.IsUserInitialized(User);
-
-    }
 
     private void SetPickerDefault()
     {
@@ -187,7 +185,7 @@ public partial class MainViewModel : BaseViewModel
     }
     
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(IsEnabled))]
     public async void UpdateCredentials(string? serverText)
     {
         StringBuilder message = new();
@@ -562,51 +560,32 @@ public partial class MainViewModel : BaseViewModel
 
     }
 
-
-
-    //private void ShowPopup(string title, string message, ObservableCollection<ServerModel>? servers, bool isDismissable)
-    //{
-    //    IsPopupShowing = true;
-    //    _popupService.ShowPopup<GeneralAlertPopupViewModel>(
-    //       onPresenting: vm =>
-    //       {
-    //           vm.Title = title;
-    //           vm.Message = message;
-    //           vm.Servers = servers;
-    //           vm.IsDismissable = isDismissable;
-
-    //           vm.PopupClosed += (sender, result) =>
-    //           {
-    //               _confirmOrCancel = result;
-    //               _popupService.ClosePopup();
-    //           };
-    //       });
-    //    IsPopupShowing = false;
-    //}
-
-    private async Task<bool> ShowPopupAsync(string title, string message,
-                                            ObservableCollection<ServerModel>? servers,
-                                            bool isDismissable)
+    private async Task ShowPopupAsync(string title, string message, ObservableCollection<ServerModel>? servers, bool isDismissable = true)
     {
-        IsPopupShowing = true;
+        var queryAttributes = new Dictionary<string, object>
+        {
+            [nameof(GeneralAlertPopupViewModel.Title)] = title,
+            [nameof(GeneralAlertPopupViewModel.Message)] = message,
+            [nameof(GeneralAlertPopupViewModel.Servers)] = servers,
+            [nameof(GeneralAlertPopupViewModel.IsDismissable)] = isDismissable
+        };
         var result = await _popupService.ShowPopupAsync<GeneralAlertPopupViewModel>(
-              onPresenting: vm =>
-              {
-                  vm.Title = title;
-                  vm.Message = message;
-                  vm.IsDismissable = isDismissable;
-                  vm.Servers = servers;
-                  vm.PopupClosed += (sender, popupResult) =>
-                  {
-                      
-                      _confirmOrCancel = popupResult;
-                      _popupService.ClosePopupAsync();
-                  };
-              });
-        IsPopupShowing = false;
-        return _confirmOrCancel;
-    }
+            shell: Shell.Current,
+            shellParameters: queryAttributes,
+            options: new PopupOptions() { CanBeDismissedByTappingOutsideOfPopup = isDismissable,
+                                          PageOverlayColor = Microsoft.Maui.Graphics.Colors.Transparent});
 
+        if (result is not null &&
+                result is IPopupResult<bool> userResult)
+        {
+            _confirmOrCancel =  userResult.Result;
+        }
+        else
+        {
+            _confirmOrCancel =  false;
+        }
+        
+    }
     [RelayCommand]
     public void RevealUsername()
     {

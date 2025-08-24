@@ -45,7 +45,7 @@
         
     </Style>
     <Style TargetType="Button">
-        <Setter Property="BackgroundColor" Value="{StaticResource TquillaPrimary}" />
+        <Setter Property="BackgroundColor" Value="{StaticResource TquillaSecondary}" />
         <Setter Property="TextColor" Value="{StaticResource TquillaText}" />
         <Setter Property="WidthRequest" Value="200" />
         <Setter Property="Padding" Value="5" />

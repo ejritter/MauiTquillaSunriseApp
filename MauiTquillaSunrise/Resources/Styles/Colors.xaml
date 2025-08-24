@@ -4,26 +4,44 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- T-Quilla Theme -->
-    <!--<Color x:Key="TquillaPrimary">#8B0000</Color>
-    <Color x:Key="TquillaText">#e49b1c</Color>
-    <Color x:Key="TquillaPlaceHolder">#e44c1c</Color>
-    <Color x:Key="TquillaIceImageFiller">#81D4FA</Color>
-    <Color x:Key="TquillaSkyBlue">#81D4FA</Color>
-    <Color x:Key="TquillaSecondary">#e41c51</Color>-->
+    <!-- T-Quilla Theme (derived from retro background palette) -->
+    <!-- Core brand colors -->
+    <Color x:Key="TquillaPrimary">#1E1A2E</Color>
+    <Color x:Key="TquillaText">#FFF8E7</Color>
+    <Color x:Key="TquillaPlaceHolder">#BFAFD2</Color>
+    <Color x:Key="TquillaIceImageFiller">#00E5FF</Color>
+    <Color x:Key="TquillaSkyBlue">#00E5FF</Color>
+    <Color x:Key="TquillaBorderStroke">#FF66CC</Color>
+    <Color x:Key="TquillaDarkPurple">#2C003E</Color>
+    <Color x:Key="TquillaDarkPurpleTransparent">#802C003E</Color>
+    <Color x:Key="TquillaGold">#FFD700</Color>
+    <Color x:Key="TquillaSecondary">#4A148C</Color>
+    <Color x:Key="TquillaDisabled">#3A334D</Color>
+    <Color x:Key="TquillaBackground">#0D0A1A</Color>
+    <Color x:Key="TquillaBlue1">#0078FF</Color>
+    <Color x:Key="TquillaBlue2">#246BF8</Color>
+    <Color x:Key="TquillaBlue3">#1F004A</Color>
 
-    <Color x:Key="TquillaPrimary">#81D4FA</Color>
-    <Color x:Key="TquillaText">#8B0000</Color>
-    <Color x:Key="TquillaPlaceHolder">#e44c1c</Color>
-    <Color x:Key="TquillaIceImageFiller">#81D4FA</Color>
-    <Color x:Key="TquillaSkyBlue">#81D4FA</Color>
-    <Color x:Key="TquillaBorderStroke">#FF69B4</Color>
-    <Color x:Key="TquillaSecondary">#e41c51</Color>
-    <Color x:Key="TquillaDisabled">#C8C8C8</Color>
-    <Color x:Key="TquillaBackground">#FFFFFF</Color>
+    <!-- Panel / section backgrounds for better separation -->
+    <Color x:Key="TquillaPanel">#26213D</Color>
+    <Color x:Key="TquillaPanelAlt">#2F2850</Color>
+    <Color x:Key="TquillaCard">#332B5F</Color>
+    
+    <!-- Brushes for convenience -->
+    <SolidColorBrush x:Key="TquillaPrimaryBrush" Color="{StaticResource TquillaPrimary}"/>
+    <SolidColorBrush x:Key="TquillaTextBrush" Color="{StaticResource TquillaText}"/>
+    <SolidColorBrush x:Key="TquillaPlaceholderBrush" Color="{StaticResource TquillaPlaceHolder}"/>
+    <SolidColorBrush x:Key="TquillaBorderBrush" Color="{StaticResource TquillaBorderStroke}"/>
+    <SolidColorBrush x:Key="TquillaSecondaryBrush" Color="{StaticResource TquillaSecondary}"/>
+    <SolidColorBrush x:Key="TquillaDisabledBrush" Color="{StaticResource TquillaDisabled}"/>
+    <SolidColorBrush x:Key="TquillaBackgroundBrush" Color="{StaticResource TquillaBackground}"/>
+    <SolidColorBrush x:Key="TquillaPanelBrush" Color="{StaticResource TquillaPanel}"/>
+    <SolidColorBrush x:Key="TquillaPanelAltBrush" Color="{StaticResource TquillaPanelAlt}"/>
+    <SolidColorBrush x:Key="TquillaCardBrush" Color="{StaticResource TquillaCard}"/>
+    <SolidColorBrush x:Key="TquillaGoldBrush" Color="{StaticResource TquillaGold}"/>
+    <SolidColorBrush x:Key="TquillaDarkPurpleBrush" Color="{StaticResource TquillaDarkPurple}"/>
 
-
-    <!-- Light Theme -->
+    <!-- Light Theme (kept for reference if needed) -->
     <Color x:Key="LightEntryBackground">#FFF5EE</Color>
     <Color x:Key="LightEntryText">#333333</Color>
     <Color x:Key="LightImageButtonBackground">#FFF5EE</Color>
@@ -32,7 +50,7 @@
     <Color x:Key="LightAppShellBackground">#FFF5EE</Color>
     <Color x:Key="LightAppShellText">#333333</Color>
 
-    <!-- Dark Theme -->
+    <!-- Dark Theme (kept for reference if needed) -->
     <Color x:Key="DarkEntryBackground">#1E1E1E</Color>
     <Color x:Key="DarkEntryText">#FFFFFF</Color>
     <Color x:Key="DarkImageButtonBackground">#1E1E1E</Color>
@@ -41,7 +59,7 @@
     <Color x:Key="DarkAppShellBackground">#1E1E1E</Color>
     <Color x:Key="DarkAppShellText">#FFFFFF</Color>
 
-    <!-- Existing Colors -->
+    <!-- Existing Colors (left as-is for any legacy usage) -->
     <Color x:Key="Primary">#FF4500</Color>
     <Color x:Key="PrimaryDark">#FF4500</Color>
     <Color x:Key="PrimaryDarkText">#4682B4</Color>

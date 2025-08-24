@@ -1,6 +1,4 @@
-﻿
-
-namespace MauiTquillaSunrise.Controls;
+﻿namespace MauiTquillaSunrise.Controls;
 public class CustomBorder : Border
 {
     public CustomBorder()
@@ -10,7 +8,9 @@ public class CustomBorder : Border
 
     private void InitializeBorder()
     {
-        this.Stroke = ResourceColors.TquillaBorderStroke;
+        // Bind to theme stroke color and thickness
+        this.SetDynamicResource(Border.StrokeProperty, "TquillaBorderStroke");
+        //this.SetDynamicResource(Border.BackgroundColorProperty, "TquillaPanel");
         this.StrokeThickness = 2;
         this.StrokeShape = new RoundRectangle
         {

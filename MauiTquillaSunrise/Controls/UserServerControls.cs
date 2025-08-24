@@ -1,6 +1,4 @@
-﻿
-
-namespace MauiTquillaSunrise.Controls;
+﻿namespace MauiTquillaSunrise.Controls;
 public class UserServerControls : ContentView
 {
     public UserServerControls()
@@ -8,66 +6,58 @@ public class UserServerControls : ContentView
         Content = IniatializeControls();
     }
 
-    private Border IniatializeControls()
+    private Microsoft.Maui.Controls.View IniatializeControls()
     {
+        var background = new Border
+        {
+            Padding = 14,
+            StrokeThickness = 2,
+            StrokeShape = new RoundRectangle { CornerRadius = 20 }
+        }
+        .DynamicResource(Border.StrokeProperty, "TquillaBorderStroke");
+        //.DynamicResource(Border.BackgroundColorProperty, "TquillaDarkPurple");
+
+        // Restore picker variable so we can attach behavior to fire SetServersToPickerSelectedItemCommand
         var picker = new CustomPicker()
-        .ColumnSpan(All<Column>())
-        .Row(Row.Picker)
-        .Center()
-        .Bottom()
-        .Fill()
-        .Bind(Picker.ItemsSourceProperty, mode: BindingMode.OneWay, getter: (MainViewModel vm) => vm.Domains)
-        .Bind(Picker.SelectedItemProperty, mode: BindingMode.TwoWay, getter: (MainViewModel vm) => vm.SelectedDomain,
+            .ColumnSpan(All<Column>())
+            .Row(Row.Picker)
+            .Center()
+            .Bottom()
+            .Fill()
+            .Bind(Picker.ItemsSourceProperty, mode: BindingMode.OneWay, getter: (MainViewModel vm) => vm.Domains)
+            .Bind(Picker.SelectedItemProperty, mode: BindingMode.TwoWay, getter: (MainViewModel vm) => vm.SelectedDomain,
                                                                      setter: (MainViewModel vm, DomainModel dm) => vm.SelectedDomain = dm ?? null);
 
-        // Add the behavior to connect the SelectedIndexChanged event to the command
+        // Fire VM command whenever the picker selection changes
         picker.Behaviors.Add(new EventToCommandBehavior
         {
-            EventName = "SelectedIndexChanged",
+            EventName = nameof(Picker.SelectedIndexChanged),
             Command = new Command(() =>
             {
-                if (this.BindingContext is MainViewModel vm)
+                if (BindingContext is MainViewModel vm)
                 {
                     vm.SetServersToPickerSelectedItemCommand.Execute(null);
                 }
             })
         });
 
-        return new Border()
+        var content = new Grid()
         {
-            Padding = 15,
-            Stroke = ResourceColors.TquillaBorderStroke,
-            StrokeThickness = 2,
-            StrokeShape = new RoundRectangle()
+            ColumnDefinitions = Columns.Define(
+                (Column.LabelsAndCount, Star)),
+
+            RowDefinitions = Rows.Define(
+                (Row.ServerCount, 50),
+                (Row.Picker, 70)),
+
+            Children =
             {
-                CornerRadius = 25
-            },
-
-            Content = new Grid()
-            {
-                ColumnDefinitions = Columns.Define(
-                    (Column.LabelsAndCount, Star)),
-
-                RowDefinitions = Rows.Define(
-                    (Row.ServerCount, 50),
-                    (Row.Picker, 70)),
-
-                Children =
-                            {
-                                new Label()
-                                    .Column(Column.LabelsAndCount)
-                                    .Row(Row.ServerCount)
-                                    .Start()
-                                    .TextCenterHorizontal()
-                                    .Bind(Label.TextProperty, getter:(MainViewModel vm) => vm.ServerStringCount)
-                                    .TextColor(ResourceColors.TquillaTextColor),
-
-                                picker
-                                    .Center()
-                                    .Row(Row.Picker)
-                            }
-            }.Top().Center()
+                picker
+            }
         };
+
+        background.Content = content;
+        return background;
     }
 
     private enum Row { ServerCount, Picker }

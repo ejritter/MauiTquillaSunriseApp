@@ -14,10 +14,9 @@ public class CustomPicker : Picker
     {
         this.Title = "Select Island:";
         this.ItemDisplayBinding = new Binding(nameof(DomainModel.DomainName));
-        this.TextColor = ResourceColors.TquillaTextColor;
-        this.TitleColor = ResourceColors.TquillaTextColor;
-        this.Background = ResourceColors.TquillaSkyBlue;
+        // Use theme resources (vibrant gold on dark purple)
+        this.SetDynamicResource(Picker.TextColorProperty, "TquillaText");
+        this.SetDynamicResource(Picker.TitleColorProperty, "TquillaGold");
+        //this.SetDynamicResource(Picker.BackgroundColorProperty, "TquillaDarkPurple");
     }
-
-
 }

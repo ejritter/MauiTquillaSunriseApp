@@ -8,23 +8,9 @@ public class CustomEntry : Entry
 
     private void InitializeEntry()
     {
-        this.PlaceholderColor = ResourceColors.TquillaPlaceHolder;
-        this.TextColor = ResourceColors.TquillaTextColor;
-        this.BackgroundColor = ResourceColors.TquillaSkyBlue;
-    }
-
-    protected override void OnPropertyChanged(string propertyName = null)
-    {
-        base.OnPropertyChanged();
-        if (propertyName == nameof(IsEnabled))
-        {
-            UpdateBackgroundColor();
-        }
-    }
-
-    private void UpdateBackgroundColor()
-    {
-        this.BackgroundColor = this.IsEnabled ? ResourceColors.TquillaSkyBlue :
-                                                ResourceColors.TquillaDisabled;
+        // Bind to theme resources from XAML
+        this.SetDynamicResource(Entry.PlaceholderColorProperty, "TquillaPlaceHolder");
+        this.SetDynamicResource(Entry.TextColorProperty, "TquillaText");
+        this.SetDynamicResource(Entry.BackgroundColorProperty, "TquillaCard");
     }
 }
